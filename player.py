@@ -9,7 +9,7 @@ class Player:
 		self.image = image
 
 	def draw(self, screen):
-		pygame.image.load(Characters.PLAYER)
+		pygame.image.load()
 
 	def detect_collision(self, other):
 		if (other.x >= self.x and other.x < (self.x + self.size)) or (self.x >= other.x and self.x < (other.x + other.size)):

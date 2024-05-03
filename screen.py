@@ -3,7 +3,7 @@ from color import Color
 import pygame
 
 class Screen:
-	def __init__(self, width=800, height=600, background=Backgrounds.RIVER, font_type="monospace", font_size=35, clock_tick=30):
+	def __init__(self, width=800, height=640, background=Backgrounds.RIVER, font_type="monospace", font_size=35, clock_tick=30):
 		self.width = width
 		self.height = height
 		self.background = background
