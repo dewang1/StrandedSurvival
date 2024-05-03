@@ -1,18 +1,19 @@
+from backgrounds import Backgrounds
 from color import Color
 import pygame
 
 class Screen:
-	def __init__(self, width=800, height=640, background_color, font_type="monospace", font_size=35, clock_tick=30):
+	def __init__(self, width=800, height=600, background=Backgrounds.RIVER, font_type="monospace", font_size=35, clock_tick=30):
 		self.width = width
 		self.height = height
-		self.background_img = background_color
+		self.background = background
 		self.screen = pygame.display.set_mode((width, height))
 		self.font = pygame.font.SysFont(font_type, font_size)
 		self.clock = pygame.time.Clock()
 		self.clock_tick = clock_tick
 
 	def refresh_background(self):
-		self.screen.fill(self.background_color)
+		self.background.blit(Backgrounds.RIVER, (0, 0))
 
 	def draw_enemies(self, enemy_list):
 		for enemy in enemy_list:
