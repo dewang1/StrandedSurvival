@@ -29,10 +29,10 @@ def play_game(screen, player, game):
 			break
 
 if __name__ == "__main__":
-	pygame.init()
+    pygame.init()
+    screen = Screen()  # Now, this should occur after display.set_mode() is established.
+    player = HumanPlayer(screen.width / 2, screen.height - 100)
+    game = Game()
+    play_game(screen, player, game)
 
-	screen = Screen()
-	player = HumanPlayer(screen.width/2, screen.height-100)
-	game = Game()
 
-	play_game(screen, player, game)
