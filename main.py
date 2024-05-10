@@ -19,7 +19,6 @@ def play_game(screen, player, game):
 					player.x += player.size
 
 		game.drop_enemies(screen.width)
-		game.update_enemy_positions(screen.height)
 		game.set_level()
 
 		screen.update_screen(game.enemy_list, player, game.score)
@@ -32,6 +31,7 @@ if __name__ == "__main__":
 	pygame.init()
 
 	screen = Screen()
+	screen.draw_image_background()
 	player = HumanPlayer(screen.width/2, screen.height-100)
 	game = Game()
 
