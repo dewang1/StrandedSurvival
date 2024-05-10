@@ -25,4 +25,7 @@ class Backgrounds:
 
     def RIVER(self):
         return self.load_image("backgrounds/riverBackground.jpg")
+    
+    def JUNGLE(self):
+        return self.load_image("backgrounds/jungleBackground.jpg")
 
