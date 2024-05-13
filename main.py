@@ -7,8 +7,8 @@ from game import Game
 speed = 10
 def play_game(screen, player, game):
     game_over = False
+    current_background = "BEACH"  # Starting background
     while not game_over:
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
@@ -17,36 +17,91 @@ def play_game(screen, player, game):
         dx, dy = 0, 0
         if keys[pygame.K_LEFT] and player.x > 0:
             dx -= 1
-        if keys[pygame.K_RIGHT] and player.x < (screen.width - player.size):
+        if keys[pygame.K_RIGHT] and player.x < screen.width - player.size:
             dx += 1
         if keys[pygame.K_UP] and player.y > 0:
             dy -= 1
-        if keys[pygame.K_DOWN] and player.y < (screen.height - player.size):
+        if keys[pygame.K_DOWN] and player.y < screen.height - player.size:
             dy += 1
 
-        # Normalize diagonal movement
         if dx != 0 and dy != 0:
             dx /= 1.41421356  # sqrt(2)
             dy /= 1.41421356  # sqrt(2)
 
-        player.x += dx*speed
-        player.y += dy*speed
+        player.x += dx * speed
+        player.y += dy * speed
 
-        #game.drop_enemies(screen.width)
-        #game.update_enemy_positions(screen.height)
+        # Background transitions based on the current environment and player's position
+        if current_background == "BEACH":
+            if player.x <= 0:
+                screen.set_background("JUNGLE")
+                current_background = "JUNGLE"
+                player.x = screen.width - player.size
+            elif player.x >= screen.width - player.size:
+                screen.set_background("OCEAN")
+                current_background = "OCEAN"
+                player.x = 0
+
+        elif current_background == "JUNGLE":
+            if player.x <= 0:
+                screen.set_background("RIVER")
+                current_background = "RIVER"
+                player.x = screen.width - player.size
+            elif player.y <= 0:
+                screen.set_background("MOUNTAIN")
+                current_background = "MOUNTAIN"
+                player.y = screen.height - player.size
+            elif player.x >= screen.width - player.size:
+                screen.set_background("BEACH")
+                current_background = "BEACH"
+                player.x = 0
+
+        elif current_background == "MOUNTAIN":
+            if player.y >= screen.height - player.size:
+                screen.set_background("JUNGLE")
+                current_background = "JUNGLE"
+                player.y = 0
+            elif player.x >= screen.width - player.size:
+                screen.set_background("CAVE")
+                current_background = "CAVE"
+                player.x = 0
+
+        elif current_background == "CAVE":
+            if player.x <= 0:
+                screen.set_background("MOUNTAIN")
+                current_background = "MOUNTAIN"
+                player.x = screen.width - player.size
+
+        elif current_background == "RIVER":
+            if player.x <= 0:
+                screen.set_background("JUNGLE")
+                current_background = "JUNGLE"
+                player.x = screen.width - player.size
+            elif player.x >= screen.width - player.size:
+                screen.set_background("OCEAN")
+                current_background = "OCEAN"
+                player.x = 0
+
+        elif current_background == "OCEAN":
+            if player.x <= 0:
+                screen.set_background("BEACH")
+                current_background = "BEACH"
+                player.x = screen.width - player.size
+
         game.set_level()
-
         screen.update_screen(game.enemy_list, player, game.score)
 
         if game.collision_check(player):
             game_over = True
             break
 
+
+
 if __name__ == "__main__":
-    pygame.init()
-    screen = Screen()  # Now, this should occur after display.set_mode() is established.
-    player = HumanPlayer(screen.width / 2, screen.height - 100)
-    game = Game()
-    play_game(screen, player, game)
+	pygame.init()
+	screen = Screen()  # Now, this should occur after display.set_mode() is established.
+	player = HumanPlayer(screen.width / 2, screen.height - 100)
+	game = Game()
+	play_game(screen, player, game)
 
 
