@@ -40,17 +40,17 @@ class HumanPlayer(Player):
     def move(self, dx, dy):
         """ Move player and update sprite based on direction. """
         moved = False
-        if dx < 0:
-            self.update_sprite('left')
-            moved = True
-        elif dx > 0:
-            self.update_sprite('right')
-            moved = True
         if dy < 0:
             self.update_sprite('up')
             moved = True
         elif dy > 0:
             self.update_sprite('down')
+            moved = True
+        elif dx < 0:
+            self.update_sprite('left')
+            moved = True
+        elif dx > 0:
+            self.update_sprite('right')
             moved = True
 
         if moved:
