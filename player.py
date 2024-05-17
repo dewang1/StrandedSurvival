@@ -15,27 +15,27 @@ class HumanPlayer(Player):
         self.load_sprites()
         super().__init__(x, y, size=50, image=self.sprites['down'][0])
         self.current_direction = 'down'
-        self.frame = 0
+        self.frame = 1  # Start from the second frame for walking animation
         self.frame_tick = 0  # Frame update ticker
 
     def load_sprites(self):
         """ Load all sprites from the spritesheet and store them in a dictionary. """
         sprite_width, sprite_height = 64, 64  # Adjust if different
         self.sprites = {'down': [], 'left': [], 'right': [], 'up': []}
+        self.still_sprites = {}  # Separate dictionary for still sprites
         directions = {'down': 10, 'left': 9, 'right': 11, 'up': 8}
 
         spritesheet = Image.open(self.spritesheet_path)
         for direction, row in directions.items():
-            for col in range(9):  # 9 frames per direction
+            self.still_sprites[direction] = spritesheet.crop((0, row * sprite_height, sprite_width, (row + 1) * sprite_height))
+            self.still_sprites[direction] = pygame.image.fromstring(self.still_sprites[direction].tobytes(), self.still_sprites[direction].size, self.still_sprites[direction].mode).convert_alpha()
+
+            for col in range(1, 9):  # Frames 2-9 for walking animation
                 x = col * sprite_width
                 y = row * sprite_height
                 sprite = spritesheet.crop((x, y, x + sprite_width, y + sprite_height))
                 sprite_surface = pygame.image.fromstring(sprite.tobytes(), sprite.size, sprite.mode).convert_alpha()
                 self.sprites[direction].append(sprite_surface)
-
-        # Load the still frame (row 3, column 1)
-        still_sprite = spritesheet.crop((0, 2 * sprite_height, 1 * sprite_width, 3 * sprite_height))
-        self.still_sprite = pygame.image.fromstring(still_sprite.tobytes(), still_sprite.size, still_sprite.mode).convert_alpha()
 
     def move(self, dx, dy):
         """ Move player and update sprite based on direction. """
@@ -63,17 +63,17 @@ class HumanPlayer(Player):
         """ Update sprite to next frame in the current direction or change direction. """
         if self.current_direction != direction:
             self.current_direction = direction
-            self.frame = 0
-        if self.frame_tick >= 5:  # Adjust timing based on game speed
+            self.frame = 1  # Start from the second frame for walking animation
+        if self.frame_tick >= 1:  # Adjust timing based on game speed
             self.frame = (self.frame + 1) % len(self.sprites[direction])
             self.frame_tick = 0
         else:
             self.frame_tick += 1
-        self.image = self.sprites[direction][self.frame]
+        self.image = self.sprites[direction][self.frame - 1]
 
     def reset_sprite(self):
         """ Reset sprite to the first frame of the current direction. """
-        self.image = self.sprites[self.current_direction][0]
+        self.image = self.still_sprites[self.current_direction]
         self.frame_tick = 0
 
     def draw(self, screen):

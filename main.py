@@ -3,7 +3,7 @@ import pygame
 from player import HumanPlayer
 from screen import Screen
 
-speed = 10
+speed = 6
 
 def play_game(screen, player):
     game_over = False
