@@ -30,16 +30,10 @@ class Screen:
 	def draw_player(self, player):
 		player.draw(self.screen)
 
-	def draw_score_label(self, score, color=Color.YELLOW):
-		text = f"Score: {score}"
-		label = self.font.render(text, 1, color)
-		self.screen.blit(label, (self.width-200, self.height-40))
 
-	def update_screen(self, enemy_list, player, score):
+	def update_screen(self, player):
 		self.refresh_background()
-		self.draw_enemies(enemy_list)
 		self.draw_player(player)
-		self.draw_score_label(score)
 
 		self.clock.tick(self.clock_tick)
 		pygame.display.update()
