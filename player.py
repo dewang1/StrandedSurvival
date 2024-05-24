@@ -42,3 +42,10 @@ class HumanPlayer(Player):
         temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
         sprite.save(temp_file.name)
         return temp_file.name
+    
+    def walking_animation(self, sprite_index=14):
+       # loop between two images (one with the character's right foot in front, and the next with the character's left foot in front)
+        sprite1 = self.get_sprite(Characters.PLAYER, sprite_index)
+        return sprite1
+            
+        
