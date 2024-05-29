@@ -1,6 +1,6 @@
-from characters import Characters
 import pygame
 from PIL import Image
+from characters import Characters  # Ensure this import is correct
 
 class Player:
     def __init__(self, x, y, size, image):
@@ -40,17 +40,44 @@ class HumanPlayer(Player):
     def move(self, dx, dy):
         """ Move player and update sprite based on direction. """
         moved = False
-        if dy < 0:
+        if dy < 0 and dx == 0:
             self.update_sprite('up')
             moved = True
-        elif dy > 0:
+        elif dy > 0 and dx == 0:
             self.update_sprite('down')
             moved = True
-        elif dx < 0:
+        elif dx < 0 and dy == 0:
             self.update_sprite('left')
             moved = True
-        elif dx > 0:
+        elif dx > 0 and dy == 0:
             self.update_sprite('right')
+            moved = True
+        elif dy < 0 and dx > 0:
+            if self.current_direction == 'right':
+                self.update_sprite('right')  # Use 'right' sprite for diagonal up-right if 'right' was last pressed
+            else:
+                self.update_sprite('up')  # Use 'up' sprite for diagonal up-right if keys pressed at same time
+            moved = True
+        elif dy < 0 and dx < 0:
+            if self.current_direction == 'left':
+                self.update_sprite('left')  # Use 'left' sprite for diagonal up-left if 'left' was last pressed
+            else:
+                self.update_sprite('up')  # Use 'up' sprite for diagonal up-left if keys pressed at same time
+            moved = True
+        elif dy > 0 and dx > 0:
+            if self.current_direction == 'right':
+                self.update_sprite('right')  # Use 'right' sprite for diagonal down-right if 'right' was last pressed
+            else:
+                self.update_sprite('down')  # Use 'down' sprite for diagonal down-right if keys pressed at same time
+            moved = True
+        elif dy > 0 and dx < 0:
+            if self.current_direction == 'left':
+                self.update_sprite('left')  # Use 'left' sprite for diagonal down-left if 'left' was last pressed
+            else:
+                self.update_sprite('down')  # Use 'down' sprite for diagonal down-left if keys pressed at same time
+            moved = True
+        elif dx != 0 or dy != 0:
+            self.update_sprite(self.current_direction)
             moved = True
 
         if moved:
@@ -58,7 +85,7 @@ class HumanPlayer(Player):
             self.y += dy
         else:
             self.reset_sprite()
-
+    
     def update_sprite(self, direction):
         """ Update sprite to next frame in the current direction or change direction. """
         if self.current_direction != direction:

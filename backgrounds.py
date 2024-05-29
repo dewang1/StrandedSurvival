@@ -1,31 +1,34 @@
-from PIL import Image
+from pytmx import load_pygame
 import pygame
 
-
 class Backgrounds:
-    _loaded_images = {}
+    def __init__(self):
+        self.tile_size = 16  # Assuming each tile is 32x32 pixels
 
-    @classmethod
-    def load_image(cls, path):
-        if path not in cls._loaded_images:
-            cls._loaded_images[path] = pygame.image.load(path).convert()
-        return cls._loaded_images[path]
+    def load_tmx(self, path):
+        return load_pygame(path)
 
-    def BEACH(self):
-        return self.load_image("backgrounds/beachBackground.jpg")
+    def render_tmx(self, tmx_data, surface):
+        for layer in tmx_data.visible_layers:
+            if hasattr(layer, 'data'):
+                for x, y, gid in layer:
+                    tile = tmx_data.get_tile_image_by_gid(gid)
+                    if tile:
+                        surface.blit(tile, (x * self.tile_size, y * self.tile_size))
 
-    def CAVE(self):
-        return self.load_image("backgrounds/caveBackground.jpg")
+    def get_tmx_background(self, tmx_path):
+        tmx_data = self.load_tmx(tmx_path)
+        width = tmx_data.tilewidth * tmx_data.width
+        height = tmx_data.tileheight * tmx_data.height
+        background_surface = pygame.Surface((width, height))
+        self.render_tmx(tmx_data, background_surface)
+        return background_surface
 
-    def MOUNTAIN(self):
-        return self.load_image("backgrounds/mountainBackground.jpg")
-
-    def OCEAN(self):
-        return self.load_image("backgrounds/oceanBackground.png")
-
-    def RIVER(self):
-        return self.load_image("backgrounds/riverBackground.jpg")
-    
     def JUNGLE(self):
-        return self.load_image("backgrounds/jungleBackground.jpg")
-
+        return self.get_tmx_background("map/jungle.tmx")
+    
+    def BEACH(self):
+        return self.get_tmx_background("map/beachplaceholder.tmx")
+    
+    def OCEAN(self):
+        return self.get_tmx_background("map/ocean.tmx")
