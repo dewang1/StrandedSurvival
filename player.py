@@ -1,6 +1,8 @@
 from characters import Characters
 import pygame
 from PIL import Image
+from color import Color
+
 
 class Player:
     def __init__(self, x, y, size, image):
@@ -8,15 +10,18 @@ class Player:
         self.y = y
         self.size = size
         self.image = image  # This should be a pygame.Surface already
+        
 
 class HumanPlayer(Player):
-    def __init__(self, x, y):
+    def __init__(self, x, y, max_health, health):
         self.spritesheet_path = Characters.PLAYER
         self.load_sprites()
         super().__init__(x, y, size=50, image=self.sprites['down'][0])
         self.current_direction = 'down'
         self.frame = 1  # Start from the second frame for walking animation
         self.frame_tick = 0  # Frame update ticker
+        self.max_health = max_health
+        self.health = health
 
     def load_sprites(self):
         """ Load all sprites from the spritesheet and store them in a dictionary. """
@@ -79,3 +84,16 @@ class HumanPlayer(Player):
     def draw(self, screen):
         """ Draw the current sprite at the player's position. """
         screen.blit(self.image, (self.x, self.y))
+
+# Enemies are colored squares for now (as templates)
+class EnemyOne(Player):
+	def __init__(self, x, y):
+		super().__init__(x, y, size=50, color=Color.BLUE)
+
+class EnemyTwo(Player):
+	def __init__(self, x, y):
+		super().__init__(x, y, size=50, color=Color.RED)
+
+class EnemyThree(Player):
+	def __init__(self, x, y):
+		super().__init__(x, y, size=50, color=Color.YELLOW)

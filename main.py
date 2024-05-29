@@ -18,17 +18,17 @@ def play_game(screen, player):
         keys = pygame.key.get_pressed()
         dx, dy = 0, 0
         if keys[pygame.K_LEFT] and player.x > 0:
-            player.sprite = player.walking_animation()
+            # player.sprite = player.walking_animation()
             dx -= 1
 
         if keys[pygame.K_RIGHT] and player.x < screen.width - player.size:
-            player.sprite = player.walking_animation()
+            # player.sprite = player.walking_animation()
             dx += 1
         if keys[pygame.K_UP] and player.y > 0:
-            player.sprite = player.walking_animation()
+            # player.sprite = player.walking_animation()
             dy -= 1
         if keys[pygame.K_DOWN] and player.y < screen.height - player.size:
-            player.sprite = player.walking_animation()
+            # player.sprite = player.walking_animation()
             dy += 1
 
         if dx != 0 and dy != 0:
@@ -107,5 +107,5 @@ def play_game(screen, player):
 if __name__ == "__main__":
     pygame.init()
     screen = Screen()  # Make sure display.set_mode() is correctly configured in the Screen class
-    player = HumanPlayer(screen.width / 2, screen.height - 100)
+    player = HumanPlayer(screen.width / 2, screen.height - 100, 100, 100)
     play_game(screen, player)

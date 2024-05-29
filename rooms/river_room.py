@@ -1,7 +1,7 @@
 import pygame
 import sys
 sys.path.insert(0, './')
-from player import HumanPlayer
+from player import HumanPlayer, EnemyOne, EnemyTwo, EnemyThree
 
 
 
@@ -13,3 +13,10 @@ class River:
         self.font = pygame.font.SysFont(font_type, font_size)
         self.clock = pygame.time.Clock()
         self.clock_tick = clock_tick
+    
+    def generate_river_creatures():
+
+
+
+    
+

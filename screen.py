@@ -1,4 +1,5 @@
 from backgrounds import Backgrounds
+from player import HumanPlayer, EnemyOne, EnemyTwo, EnemyThree
 from color import Color
 import pygame
 
@@ -21,7 +22,10 @@ class Screen:
 	def refresh_background(self):
 		self.screen.blit(self.background, (0, 0))
 
-
+	def draw_healthbar(self, player):
+		ratio = player.health / player.max_health
+		pygame.draw.rect(self.screen, "red", (100, 600, 560, self.height))
+		pygame.draw.rect(self.screen, "green", (100, 600, 560 * ratio, self.height))
 
 	def draw_enemies(self, enemy_list):
 		for enemy in enemy_list:
@@ -34,6 +38,6 @@ class Screen:
 	def update_screen(self, player):
 		self.refresh_background()
 		self.draw_player(player)
-
+		self.draw_healthbar(player)
 		self.clock.tick(self.clock_tick)
 		pygame.display.update()
