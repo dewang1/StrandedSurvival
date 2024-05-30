@@ -10,25 +10,28 @@ def play_game(screen, player):
     current_background = "BEACH"  # Starting background
     last_background = None  # To prevent immediate re-triggering of background transitions
 
+    inventory_visible = False
+    inventory_button = pygame.Rect(screen.width - 200, 10, 197, 40)  # Position for the inventory button
+
+
     while not game_over:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if inventory_button.collidepoint(event.pos):
+                    inventory_visible = not inventory_visible
 
         keys = pygame.key.get_pressed()
         dx, dy = 0, 0
         if keys[pygame.K_LEFT] and player.x > 0:
-            # player.sprite = player.walking_animation()
             dx -= 1
-
+            player.draw_health_bar
         if keys[pygame.K_RIGHT] and player.x < screen.width - player.size:
-            # player.sprite = player.walking_animation()
             dx += 1
         if keys[pygame.K_UP] and player.y > 0:
-            # player.sprite = player.walking_animation()
             dy -= 1
         if keys[pygame.K_DOWN] and player.y < screen.height - player.size:
-            # player.sprite = player.walking_animation()
             dy += 1
 
         if dx != 0 and dy != 0:
@@ -36,6 +39,7 @@ def play_game(screen, player):
             dy /= 1.41421356  # sqrt(2)
 
         player.move(dx * speed, dy * speed)
+
 
         # Background transitions based on the current environment and player's position
         if current_background == "BEACH":
@@ -102,7 +106,7 @@ def play_game(screen, player):
                 player.x = screen.width - player.size - 1
                 last_background = "BEACH"
 
-        screen.update_screen(player)
+        screen.update_screen(player, inventory_visible, inventory_button)
 
 if __name__ == "__main__":
     pygame.init()

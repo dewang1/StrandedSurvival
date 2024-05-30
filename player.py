@@ -17,6 +17,8 @@ class HumanPlayer(Player):
         self.spritesheet_path = Characters.PLAYER
         self.load_sprites()
         super().__init__(x, y, size=50, image=self.sprites['down'][0])
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
         self.current_direction = 'down'
         self.frame = 1  # Start from the second frame for walking animation
         self.frame_tick = 0  # Frame update ticker
@@ -61,6 +63,7 @@ class HumanPlayer(Player):
         if moved:
             self.x += dx
             self.y += dy
+            self.rect.topleft = (self.x, self.y)
         else:
             self.reset_sprite()
 
@@ -81,9 +84,26 @@ class HumanPlayer(Player):
         self.image = self.still_sprites[self.current_direction]
         self.frame_tick = 0
 
+    def draw_health_bar(self, screen):
+        # Calculate health ratio
+        health_ratio = self.health / self.max_health
+        # Calculate health bar dimensions
+        bar_width = self.size
+        bar_height = 10
+        health_bar_width = int(bar_width * health_ratio)
+
+        # Draw the background of the health bar
+        pygame.draw.rect(screen, "red", (self.rect.x, self.rect.y - 15, bar_width, bar_height))
+        # Draw the health bar
+        pygame.draw.rect(screen, "green", (self.rect.x, self.rect.y - 15, health_bar_width, bar_height))
+
     def draw(self, screen):
         """ Draw the current sprite at the player's position. """
         screen.blit(self.image, (self.x, self.y))
+        self.draw_health_bar(screen)
+ 
+    
+    
 
 # Enemies are colored squares for now (as templates)
 class EnemyOne(Player):
