@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="18" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="1">
- <tileset firstgid="1" source="tilesets_edit/9_beach.tsx"/>
- <tileset firstgid="289" source="10_dirt.tsx"/>
- <tileset firstgid="569" source="tilesets_edit/Terrain.tsx"/>
- <tileset firstgid="2009" source="tilesets_edit/plants.tsx"/>
+ <tileset firstgid="1" source="../tiles/9_beach.tsx"/>
+ <tileset firstgid="289" source="../tiles/10_dirt.tsx"/>
+ <tileset firstgid="569" source="../tiles/1_terrain.tsx"/>
+ <tileset firstgid="2009" source="../tiles/3_plants.tsx"/>
  <layer id="1" name="Tile Layer 1" width="32" height="18">
   <data encoding="csv">
 1171,1172,1171,1172,1171,1172,1171,1172,1171,1172,1171,1171,1172,1171,1172,1171,435,436,437,434,435,436,420,421,420,421,422,423,420,421,422,423,
