@@ -2,6 +2,7 @@ import pygame
 from PIL import Image
 from characters import Characters  # Ensure this import is correct
 
+
 class Player:
     def __init__(self, x, y, size, image):
         self.x = x
@@ -118,14 +119,51 @@ class HumanPlayer(Player):
         screen.blit(self.image, (self.x, self.y))
 
 # Enemies are colored squares for now (as templates)
-class EnemyOne(Player):
-	def __init__(self, x, y):
-		super().__init__(x, y, size=50, color=Color.BLUE)
+class Snake(Player):
+    def __init__(self, x, y, size, image, venomous, length):
+        super().__init__(x, y, size, image)
+        self.venomous = venomous
+        self.length = length
+        self.spritesheet_path = Characters.SNAKE
+        self.load_sprites()
 
-class EnemyTwo(Player):
-	def __init__(self, x, y):
-		super().__init__(x, y, size=50, color=Color.RED)
+    def load_sprites(self):
+        """ Load all sprites from the spritesheet and store them in a dictionary. """
+        sprite_width, sprite_height = 64, 64  # Adjust if different
+        self.sprites = {'slither': []}
+        
+        spritesheet = Image.open(self.spritesheet_path)
+        for col in range(7):  # Assuming 7 frames for slithering animation
+            x = col * sprite_width
+            y = 0  # Assuming single row spritesheet for simplicity
+            sprite = spritesheet.crop((x, y, x + sprite_width, y + sprite_height))
+            sprite_surface = pygame.image.fromstring(sprite.tobytes(), sprite.size, sprite.mode).convert_alpha()
+            self.sprites['slither'].append(sprite_surface)
+        self.image = self.sprites['slither'][0]
 
-class EnemyThree(Player):
-	def __init__(self, x, y):
-		super().__init__(x, y, size=50, color=Color.YELLOW)
+    def slither(self, dx, dy):
+        """ Move snake and update sprite based on slither animation. """
+        self.move(dx, dy)
+        self.update_sprite('slither')
+
+    def update_sprite(self, animation):
+        """ Update sprite to next frame in the animation. """
+        if hasattr(self, 'frame') and hasattr(self, 'frame_tick'):
+            self.frame = (self.frame + 1) % len(self.sprites[animation])
+            self.frame_tick = 0
+        else:
+            self.frame = 1
+            self.frame_tick = 0
+        self.image = self.sprites[animation][self.frame - 1]
+
+    def attack(self, target):
+        """ Attack method unique to Snake, can be expanded as needed. """
+        if self.venomous:
+            print(f"Attacking {target} with venom!")
+        else:
+            print(f"Attacking {target} with a bite!")
+    
+    def draw(self, screen):
+        """ Draw the current sprite at the snake's position. """
+        screen.blit(self.image, (self.x, self.y))
+
