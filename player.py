@@ -1,7 +1,6 @@
 import pygame
 from PIL import Image
-from color import Color
-
+from characters import Characters  # Ensure this import is correct
 
 class Player:
     def __init__(self, x, y, size, image):
@@ -9,18 +8,25 @@ class Player:
         self.y = y
         self.size = size
         self.image = image  # This should be a pygame.Surface already
-        
 
 class HumanPlayer(Player):
-    def __init__(self, x, y, max_health, health):
+    def __init__(self, x, y, max_health, health, max_hunger, hunger, max_temperature, temperature):
         self.spritesheet_path = Characters.PLAYER
         self.load_sprites()
         super().__init__(x, y, size=50, image=self.sprites['down'][0])
         self.current_direction = 'down'
         self.frame = 1  # Start from the second frame for walking animation
         self.frame_tick = 0  # Frame update ticker
+        self.last_key_press_time = 0
+        self.key_press_threshold = 50  # Milliseconds
         self.max_health = max_health
         self.health = health
+
+        # Initialize hunger and temperature attributes
+        self.max_hunger = max_hunger
+        self.hunger = hunger
+        self.max_temperature = max_temperature
+        self.temperature = temperature
 
     def load_sprites(self):
         """ Load all sprites from the spritesheet and store them in a dictionary. """

@@ -3,25 +3,65 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "map/jungle.tmx",
     "expandedProjectPaths": [
+        "tiles",
+        ".",
+        "map"
     ],
     "fileStates": {
         "map/beachplaceholder.tmx": {
             "scale": 1.4212890624999999,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 256.4573313178508,
-                "y": 144.58705510512576
+                "x": 255.40195135357982,
+                "y": 144.58705510512573
             }
         },
         "map/jungle.tmx": {
-            "scale": 3.2099609375,
+            "scale": 2,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 263.25,
+                "y": 131.75
+            }
+        },
+        "map/ocean.tmx": {
+            "scale": 1.4212890624999999,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 113.55278369333737,
-                "y": 72.1192576817767
+                "x": 255.40195135357982,
+                "y": 144.58705510512573
             }
+        },
+        "tiles/10_dirt.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tiles/1_terrain.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1
+        },
+        "tiles/3_plants.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 23,
+            "scaleInEditor": 1
+        },
+        "tiles/9_beach.tsx": {
+            "dynamicWrapping": false,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tiles/tree.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "tiles/trees.tsx": {
+            "dynamicWrapping": true,
+            "scaleInDock": 3,
+            "scaleInEditor": 4
         }
     },
     "last.imagePath": "C:/Users/Jason/Documents/GitHub/2025_Game_5/tiles",
@@ -31,14 +71,29 @@
     "map.tileWidth": 16,
     "map.width": 32,
     "openFiles": [
+        "map/jungle.tmx",
+        "map/beachplaceholder.tmx",
+        "map/ocean.tmx",
+        "tiles/10_dirt.tsx",
+        "tiles/9_beach.tsx",
+        "tiles/trees.tsx",
+        "tiles/3_plants.tsx"
     ],
     "project": "adventureGame.tiled-project",
     "recentFiles": [
-        "map/jungle.tmx"
+        "map/jungle.tmx",
+        "tiles/3_plants.tsx",
+        "tiles/trees.tsx",
+        "tiles/9_beach.tsx",
+        "tiles/10_dirt.tsx",
+        "map/ocean.tmx",
+        "map/beachplaceholder.tmx",
+        "tiles/tree.tsx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
         "height": 16,
         "width": 16
-    }
+    },
+    "tileset.type": 1
 }

@@ -7,7 +7,7 @@ speed = 6
 
 def play_game(screen, player):
     game_over = False
-    current_background = "BEACH"  # Starting background
+    current_background = "JUNGLE"  # Starting background
     last_background = None  # To prevent immediate re-triggering of background transitions
 
     while not game_over:
@@ -20,12 +20,10 @@ def play_game(screen, player):
         keys = pygame.key.get_pressed()
         dx, dy = 0, 0
         if keys[pygame.K_LEFT] and player.x > 0:
-            # player.sprite = player.walking_animation()
             dx -= 1
         if keys[pygame.K_RIGHT] and player.x < screen.internal_width - player.size:
             dx += 1
         if keys[pygame.K_UP] and player.y > 0:
-            # player.sprite = player.walking_animation()
             dy -= 1
         if keys[pygame.K_DOWN] and player.y < screen.internal_height - player.size:
             dy += 1
@@ -107,8 +105,9 @@ def play_game(screen, player):
 
         screen.update_screen(player)
 
+
 if __name__ == "__main__":
     pygame.init()
     screen = Screen()  # Default starts with BEACH background
-    player = HumanPlayer(screen.internal_width / 2, screen.internal_height - 100)
+    player = HumanPlayer(screen.internal_width / 2, screen.internal_height - 100, 20, 20, 20, 20, 20, 20)
     play_game(screen, player)
