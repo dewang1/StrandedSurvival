@@ -138,6 +138,7 @@
     ],
     "project": "adventureGame.tiled-project",
     "recentFiles": [
+        "backgrounds/Pond.tmx",
         "backgrounds/Cave.tmx",
         "tiles/8_cave.tsx",
         "tiles/12_extra1.tsx",
@@ -146,7 +147,6 @@
         "tiles/9_beach.tsx",
         "tiles/trees.tsx",
         "tiles/3_plants.tsx",
-        "backgrounds/Pond.tmx",
         "backgrounds/Jungle.tmx",
         "backgrounds/Mountain.tmx",
         "map/jungle.tmx"
