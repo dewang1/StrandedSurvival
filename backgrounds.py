@@ -12,13 +12,13 @@ class Backgrounds:
         return cls._loaded_images[path]
 
     def BEACH(self):
-        return self.load_image("backgrounds/beachBackground.jpg")
+        return self.load_image("backgrounds/Beach.tmx")
 
     def CAVE(self):
-        return self.load_image("backgrounds/caveBackground.jpg")
+        return self.load_image("backgrounds/Cave.tmx")
 
     def MOUNTAIN(self):
-        return self.load_image("backgrounds/mountainBackground.jpg")
+        return self.load_image("backgrounds/Mountain.tmx")
 
     def OCEAN(self):
         return self.load_image("backgrounds/oceanBackground.png")
