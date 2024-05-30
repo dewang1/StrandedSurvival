@@ -52,11 +52,11 @@ def play_game(screen, player):
                 last_background = "OCEAN"
 
         elif current_background == "JUNGLE":
-            if player.x <= 0 and last_background != "RIVER":
-                screen.set_background("RIVER")
-                current_background = "RIVER"
+            if player.x <= 0 and last_background != "POND":
+                screen.set_background("POND")
+                current_background = "POND"
                 player.x = screen.internal_width - player.size - 1
-                last_background = "RIVER"
+                last_background = "POND"
             elif player.y <= 0 and last_background != "MOUNTAIN":
                 screen.set_background("MOUNTAIN")
                 current_background = "MOUNTAIN"
@@ -87,7 +87,7 @@ def play_game(screen, player):
                 player.x = screen.internal_width - player.size - 1
                 last_background = "MOUNTAIN"
 
-        elif current_background == "RIVER":
+        elif current_background == "POND":
             if player.x <= 0:
                 player.x = 0  # Boundary, no transition to another area
             elif player.x >= screen.internal_width - player.size and last_background != "JUNGLE":

@@ -33,10 +33,19 @@ class Backgrounds:
         return background_surface
 
     def JUNGLE(self):
-        return self.get_tmx_background("map/jungle.tmx")
+        return self.get_tmx_background("backgrounds/Jungle.tmx")
     
     def BEACH(self):
-        return self.get_tmx_background("map/beachplaceholder.tmx")
+        return self.get_tmx_background("backgrounds/Beach.tmx")
+
+    def CAVE(self):
+        return self.get_tmx_background("backgrounds/Cave.tmx")
+
+    def MOUNTAIN(self):
+        return self.get_tmx_background("backgrounds/Mountain.tmx")
     
     def OCEAN(self):
-        return self.get_tmx_background("map/ocean.tmx")
+        return self.get_tmx_background("backgrounds/Ocean.tmx")
+    
+    def POND(self):
+        return self.get_tmx_background("backgrounds/Pond.tmx")
