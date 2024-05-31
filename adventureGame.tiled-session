@@ -23,6 +23,14 @@
         "backgrounds/8_cave.tsx": {
             "scaleInDock": 1
         },
+        "backgrounds/BEACH.tmx": {
+            "scale": 2,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 276.75,
+                "y": 107.25
+            }
+        },
         "backgrounds/Beach.tmx": {
             "expandedObjectLayers": [
                 10,
@@ -30,21 +38,21 @@
                 9
             ],
             "scale": 2.0447265624999997,
-            "selectedLayer": 6,
+            "selectedLayer": 7,
             "viewCenter": {
-                "x": 255.7799216735123,
-                "y": 144.0290381125227
+                "x": 202.22752889483237,
+                "y": 143.5399751647722
             }
         },
         "backgrounds/CAVE.tmx": {
             "expandedObjectLayers": [
                 4
             ],
-            "scale": 2,
+            "scale": 1.5,
             "selectedLayer": 3,
             "viewCenter": {
-                "x": 256,
-                "y": 144.25
+                "x": 280.3333333333333,
+                "y": 147
             }
         },
         "backgrounds/Cave.tmx": {
@@ -69,8 +77,8 @@
             "scale": 2,
             "selectedLayer": 6,
             "viewCenter": {
-                "x": 256,
-                "y": 144.25
+                "x": 290.25,
+                "y": 93.25
             }
         },
         "backgrounds/Jungle.tmx": {
@@ -85,14 +93,11 @@
             }
         },
         "backgrounds/MOUNTAIN.tmx": {
-            "expandedObjectLayers": [
-                6
-            ],
-            "scale": 2.1003906249999997,
+            "scale": 2,
             "selectedLayer": 5,
             "viewCenter": {
-                "x": 256.3808815324531,
-                "y": 144.02082945880602
+                "x": 312.75,
+                "y": 191.25
             }
         },
         "backgrounds/Mountain.tmx": {
@@ -111,20 +116,21 @@
             "scale": 2.1003906249999997,
             "selectedLayer": 1,
             "viewCenter": {
-                "x": 255.66672865910363,
-                "y": 144.02082945880608
+                "x": 366.8365259438349,
+                "y": 143.54472754323976
             }
         },
         "backgrounds/POND.tmx": {
             "expandedObjectLayers": [
                 6,
+                8,
                 5
             ],
             "scale": 2,
-            "selectedLayer": 4,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 256,
-                "y": 144.25
+                "x": 265.25,
+                "y": 162.25
             }
         },
         "backgrounds/Pond.tmx": {
@@ -134,8 +140,8 @@
             "scale": 1.9779296874999999,
             "selectedLayer": 6,
             "viewCenter": {
-                "x": 255.82304729929893,
-                "y": 144.34284585760835
+                "x": 255.06467858200853,
+                "y": 143.83726671274812
             }
         },
         "map/beachplaceholder.tmx": {
@@ -248,14 +254,14 @@
     ],
     "project": "adventureGame.tiled-project",
     "recentFiles": [
+        "backgrounds/Pond.tmx",
+        "backgrounds/Beach.tmx",
         "backgrounds/Mountain.tmx",
         "tiles/10_dirt.tsx",
         "tiles/9_beach.tsx",
         "tiles/trees.tsx",
         "tiles/3_plants.tsx",
-        "backgrounds/Pond.tmx",
         "tiles/8_cave.tsx",
-        "backgrounds/Beach.tmx",
         "backgrounds/JUNGLE.tmx",
         "tiles/palm.tsx",
         "backgrounds/OCEAN.tmx",
