@@ -1,5 +1,7 @@
+# backgrounds.py
 from pytmx import load_pygame
 import pygame
+from collidable import Collidable
 
 class Backgrounds:
     def __init__(self):
@@ -26,13 +28,21 @@ class Backgrounds:
 
         return objects
 
+    def get_collidable_objects(self, tmx_data):
+        collidables = []
+        for layer in tmx_data.objectgroups:
+            for obj in layer:
+                collidable_rect = pygame.Rect(obj.x / 512 * 800, obj.y / 288 * 450, obj.width / 512 * 800, obj.height / 288 * 450)
+                collidables.append(Collidable(collidable_rect, layer.name))
+        return collidables
+    
     def get_tmx_background(self, tmx_path):
         tmx_data = self.load_tmx(tmx_path)
         width = tmx_data.tilewidth * tmx_data.width
         height = tmx_data.tileheight * tmx_data.height
         background_surface = pygame.Surface((width, height))
         objects = self.render_tmx(tmx_data, background_surface)
-        return background_surface, objects
+        return background_surface, objects, tmx_data
 
     def JUNGLE(self):
         return self.get_tmx_background("backgrounds/JUNGLE.tmx")

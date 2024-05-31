@@ -3,39 +3,70 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "backgrounds/Beach.tmx",
+    "activeFile": "backgrounds/JUNGLE.tmx",
     "expandedProjectPaths": [
         "tiles",
-        "map",
         "backgrounds",
+        "map",
         "."
     ],
     "fileStates": {
+        "9_beach.tsx": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Jason/Downloads/tilesets_edit/9_beach.tsx": {
+            "scaleInDock": 1
+        },
+        "C:/Users/Jason/Downloads/tilesets_edit/plants.tsx": {
+            "scaleInDock": 1
+        },
         "backgrounds/8_cave.tsx": {
             "scaleInDock": 1
         },
         "backgrounds/Beach.tmx": {
+            "expandedObjectLayers": [
+                9,
+                8
+            ],
             "scale": 2.0447265624999997,
-            "selectedLayer": 1,
+            "selectedLayer": 6,
             "viewCenter": {
-                "x": 446.75900277008316,
-                "y": 153.81029706753276
+                "x": 282.1893208520394,
+                "y": 138.6493456872672
+            }
+        },
+        "backgrounds/CAVE.tmx": {
+            "expandedObjectLayers": [
+                4
+            ],
+            "scale": 2,
+            "selectedLayer": 3,
+            "viewCenter": {
+                "x": 246.75,
+                "y": 153.75
             }
         },
         "backgrounds/Cave.tmx": {
-            "scale": 1.5,
-            "selectedLayer": 1,
+            "expandedObjectLayers": [
+                4,
+                5
+            ],
+            "scale": 2,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 255.66666666666666,
-                "y": 144.33333333333331
+                "x": 251.5,
+                "y": 129.75
             }
         },
         "backgrounds/JUNGLE.tmx": {
-            "scale": 1.5,
-            "selectedLayer": 0,
+            "expandedObjectLayers": [
+                9
+            ],
+            "scale": 2,
+            "selectedLayer": 6,
             "viewCenter": {
-                "x": 219,
-                "y": 172.33333333333334
+                "x": 266.5,
+                "y": 153.75
             }
         },
         "backgrounds/Jungle.tmx": {
@@ -49,20 +80,55 @@
                 "y": 143.33168756788785
             }
         },
-        "backgrounds/Mountain.tmx": {
-            "scale": 1,
-            "selectedLayer": 3,
+        "backgrounds/MOUNTAIN.tmx": {
+            "expandedObjectLayers": [
+                6
+            ],
+            "scale": 2.1003906249999997,
+            "selectedLayer": 5,
             "viewCenter": {
-                "x": 121.5,
-                "y": 144.5
+                "x": 256.3808815324531,
+                "y": 144.02082945880602
+            }
+        },
+        "backgrounds/Mountain.tmx": {
+            "expandedObjectLayers": [
+                9,
+                7
+            ],
+            "scale": 2,
+            "selectedLayer": 7,
+            "viewCenter": {
+                "x": 318,
+                "y": 121.25
+            }
+        },
+        "backgrounds/OCEAN.tmx": {
+            "scale": 2.1003906249999997,
+            "selectedLayer": 1,
+            "viewCenter": {
+                "x": 367.7887297749675,
+                "y": 144.02082945880602
+            }
+        },
+        "backgrounds/POND.tmx": {
+            "expandedObjectLayers": [
+                6,
+                5
+            ],
+            "scale": 2,
+            "selectedLayer": 4,
+            "viewCenter": {
+                "x": 212.25,
+                "y": 162.75
             }
         },
         "backgrounds/Pond.tmx": {
             "scale": 1.9779296874999999,
-            "selectedLayer": 2,
+            "selectedLayer": 3,
             "viewCenter": {
-                "x": 255.82304729929893,
-                "y": 144.34284585760835
+                "x": 251.0200454231263,
+                "y": 138.78147526414537
             }
         },
         "map/beachplaceholder.tmx": {
@@ -88,6 +154,9 @@
                 "x": 255.40195135357982,
                 "y": 144.58705510512573
             }
+        },
+        "tiles.plants.tsx": {
+            "scaleInDock": 1
         },
         "tiles/10_dirt.tsx": {
             "dynamicWrapping": false,
@@ -123,6 +192,12 @@
             "scaleInDock": 1,
             "scaleInEditor": 1
         },
+        "tiles/palm.tsx": {
+            "dynamicWrapping": true
+        },
+        "tiles/plants.tsx": {
+            "scaleInDock": 1
+        },
         "tiles/tree.tsx": {
             "dynamicWrapping": true,
             "scaleInDock": 1,
@@ -149,27 +224,28 @@
         "backgrounds/Mountain.tmx",
         "backgrounds/Cave.tmx",
         "tiles/8_cave.tsx",
-        "backgrounds/Beach.tmx"
+        "backgrounds/Beach.tmx",
+        "backgrounds/JUNGLE.tmx"
     ],
     "project": "adventureGame.tiled-project",
     "recentFiles": [
-        "backgrounds/JUNGLE.tmx",
+        "backgrounds/MOUNTAIN.tmx",
+        "backgrounds/Cave.tmx",
+        "backgrounds/Pond.tmx",
         "tiles/10_dirt.tsx",
         "tiles/9_beach.tsx",
         "tiles/trees.tsx",
         "tiles/3_plants.tsx",
-        "backgrounds/Pond.tmx",
         "backgrounds/Mountain.tmx",
-        "backgrounds/Cave.tmx",
         "tiles/8_cave.tsx",
         "backgrounds/Beach.tmx",
-        "backgrounds/Jungle.tmx",
-        "tiles/12_extra1.tsx"
+        "backgrounds/JUNGLE.tmx",
+        "backgrounds/Jungle.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
         "height": 16,
         "width": 16
     },
-    "tileset.type": 0
+    "tileset.type": 1
 }

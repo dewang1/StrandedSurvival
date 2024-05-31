@@ -15,6 +15,7 @@ class HumanPlayer(Player):
         self.load_sprites()
         super().__init__(x, y, size=64, image=self.sprites['down'][0])
         self.current_direction = 'down'
+        self.movement = 'stopped'
         self.frame = 1  # Start from the second frame for walking animation
         self.frame_tick = 0  # Frame update ticker
         self.last_key_press_time = 0
@@ -27,6 +28,9 @@ class HumanPlayer(Player):
         self.hunger = hunger
         self.max_temperature = max_temperature
         self.temperature = temperature
+
+        # Initialize inventory
+        self.inventory = [{"item": None, "quantity": 0} for _ in range(9)]
 
     def load_sprites(self):
         """ Load all sprites from the spritesheet and store them in a dictionary. """
@@ -47,40 +51,49 @@ class HumanPlayer(Player):
                 sprite_surface = pygame.image.fromstring(sprite.tobytes(), sprite.size, sprite.mode).convert_alpha()
                 self.sprites[direction].append(sprite_surface)
 
+    
     def move(self, dx, dy):
         """ Move player and update sprite based on direction. """
         moved = False
         if dy < 0 and dx == 0:
+            self.movement = 'up'
             self.update_sprite('up')
             moved = True
         elif dy > 0 and dx == 0:
+            self.movement = 'down'
             self.update_sprite('down')
             moved = True
         elif dx < 0 and dy == 0:
+            self.movement = 'left'
             self.update_sprite('left')
             moved = True
         elif dx > 0 and dy == 0:
+            self.movement = 'right'
             self.update_sprite('right')
             moved = True
         elif dy < 0 and dx > 0:
+            self.movement = 'up-right'
             if self.current_direction == 'right':
                 self.update_sprite('right')  # Use 'right' sprite for diagonal up-right if 'right' was last pressed
             else:
                 self.update_sprite('up')  # Use 'up' sprite for diagonal up-right if keys pressed at same time
             moved = True
         elif dy < 0 and dx < 0:
+            self.movement = 'up-left'
             if self.current_direction == 'left':
                 self.update_sprite('left')  # Use 'left' sprite for diagonal up-left if 'left' was last pressed
             else:
                 self.update_sprite('up')  # Use 'up' sprite for diagonal up-left if keys pressed at same time
             moved = True
         elif dy > 0 and dx > 0:
+            self.movement = 'down-right'
             if self.current_direction == 'right':
                 self.update_sprite('right')  # Use 'right' sprite for diagonal down-right if 'right' was last pressed
             else:
                 self.update_sprite('down')  # Use 'down' sprite for diagonal down-right if keys pressed at same time
             moved = True
         elif dy > 0 and dx < 0:
+            self.movement = 'down-left'
             if self.current_direction == 'left':
                 self.update_sprite('left')  # Use 'left' sprite for diagonal down-left if 'left' was last pressed
             else:
@@ -94,8 +107,9 @@ class HumanPlayer(Player):
             self.x += dx
             self.y += dy
         else:
+            self.movement = 'stopped'
             self.reset_sprite()
-    
+
     def update_sprite(self, direction):
         """ Update sprite to next frame in the current direction or change direction. """
         if self.current_direction != direction:
@@ -117,15 +131,69 @@ class HumanPlayer(Player):
         """ Draw the current sprite at the player's position. """
         screen.blit(self.image, (self.x, self.y))
 
-# Enemies are colored squares for now (as templates)
-class EnemyOne(Player):
-	def __init__(self, x, y):
-		super().__init__(x, y, size=50, color=Color.BLUE)
+    def add_item(self, item, quantity):
+        """ Add an item to the inventory. """
+        for slot in self.inventory:
+            if slot["item"] == item and slot["quantity"] < 20:
+                slot["quantity"] = min(20, slot["quantity"] + quantity)
+                return True
+        for slot in self.inventory:
+            if slot["item"] is None:
+                slot["item"] = item
+                slot["quantity"] = quantity
+                return True
+        return False
 
-class EnemyTwo(Player):
-	def __init__(self, x, y):
-		super().__init__(x, y, size=50, color=Color.RED)
 
-class EnemyThree(Player):
-	def __init__(self, x, y):
-		super().__init__(x, y, size=50, color=Color.YELLOW)
+class Snake(Player):
+    def __init__(self, x, y, venomous, length):
+        # Initialize the parent Player class
+        self.spritesheet_path = Characters.SNAKE  # Replace with the correct path to the snake sprite sheet
+        self.sprites = self.load_sprites(self.spritesheet_path)
+        super().__init__(x, y, size=64, image=self.sprites['slither'][0])  # Initial size and image
+        self.venomous = venomous
+        self.length = length
+        self.frame = 0
+        self.frame_tick = 0
+        self.animation_speed = 5  # Adjust speed as needed
+
+    def load_sprites(self, path):
+        """ Load all sprites from the sprite sheet and store them in a dictionary. """
+        sprite_width, sprite_height = 64, 64  # Adjust based on your sprite sheet dimensions
+        spritesheet = Image.open(path)
+        sprites = {'slither': []}
+
+        # Extract slither frames from the first row
+        for col in range(6):  # Assuming 6 frames for slithering animation
+            x = col * sprite_width
+            y = 0  # Only the first row
+            sprite = spritesheet.crop((x, y, x + sprite_width, y + sprite_height))
+            sprite_surface = pygame.image.fromstring(sprite.tobytes(), sprite.size, sprite.mode).convert_alpha()
+            sprites['slither'].append(sprite_surface)
+
+        return sprites
+
+    def slither(self, dx, dy):
+        """ Move snake and update sprite based on slither animation. """
+        self.x += dx
+        self.y += dy
+        self.update_sprite('slither')
+
+    def update_sprite(self, animation):
+        """ Update sprite to next frame in the animation. """
+        self.frame_tick += 1
+        if self.frame_tick >= self.animation_speed:
+            self.frame_tick = 0
+            self.frame = (self.frame + 1) % len(self.sprites[animation])
+            self.image = self.sprites[animation][self.frame]
+
+    def attack(self, target):
+        """ Attack method unique to Snake, can be expanded as needed. """
+        if self.venomous:
+            print(f"Attacking {target} with venom!")
+        else:
+            print(f"Attacking {target} with a bite!")
+
+    def draw(self, screen):
+        """ Draw the current sprite at the snake's position. """
+        screen.blit(self.image, (self.x, self.y))
