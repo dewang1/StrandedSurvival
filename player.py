@@ -19,7 +19,7 @@ class HumanPlayer(Player):
         self.frame = 1  # Start from the second frame for walking animation
         self.frame_tick = 0  # Frame update ticker
         self.last_key_press_time = 0
-        self.key_press_threshold = 50  # Milliseconds
+        self.key_press_threshold = 50 
         self.max_health = max_health
         self.health = health
 
@@ -31,6 +31,9 @@ class HumanPlayer(Player):
 
         # Initialize inventory
         self.inventory = [{"item": None, "quantity": 0} for _ in range(9)]
+
+        # Initialize spear flag
+        self.has_spear = False
 
     def load_sprites(self):
         """ Load all sprites from the spritesheet and store them in a dictionary. """
@@ -51,7 +54,6 @@ class HumanPlayer(Player):
                 sprite_surface = pygame.image.fromstring(sprite.tobytes(), sprite.size, sprite.mode).convert_alpha()
                 self.sprites[direction].append(sprite_surface)
 
-    
     def move(self, dx, dy):
         """ Move player and update sprite based on direction. """
         moved = False
@@ -133,67 +135,74 @@ class HumanPlayer(Player):
 
     def add_item(self, item, quantity):
         """ Add an item to the inventory. """
+        max_stack_size = 30
+
+        # First, try to add the item to existing stacks
         for slot in self.inventory:
-            if slot["item"] == item and slot["quantity"] < 20:
-                slot["quantity"] = min(20, slot["quantity"] + quantity)
-                return True
+            if slot["item"] == item:
+                if slot["quantity"] < max_stack_size:
+                    available_space = max_stack_size - slot["quantity"]
+                    add_quantity = min(quantity, available_space)
+                    slot["quantity"] += add_quantity
+                    quantity -= add_quantity
+                    if quantity <= 0:
+                        return True
+
+        # Then, try to add the remaining quantity to new slots
         for slot in self.inventory:
             if slot["item"] is None:
+                add_quantity = min(quantity, max_stack_size)
                 slot["item"] = item
-                slot["quantity"] = quantity
-                return True
+                slot["quantity"] = add_quantity
+                quantity -= add_quantity
+                if quantity <= 0:
+                    return True
+
+        # If there is remaining quantity and no slots available, it cannot be added
         return False
 
+    def clear_inventory_slot(self, slot_index):
+        """ Clear the specified inventory slot. """
+        if 0 <= slot_index < len(self.inventory):
+            self.inventory[slot_index] = {"item": None, "quantity": 0}
 
-class Snake(Player):
-    def __init__(self, x, y, venomous, length):
-        # Initialize the parent Player class
-        self.spritesheet_path = Characters.SNAKE  # Replace with the correct path to the snake sprite sheet
-        self.sprites = self.load_sprites(self.spritesheet_path)
-        super().__init__(x, y, size=64, image=self.sprites['slither'][0])  # Initial size and image
-        self.venomous = venomous
-        self.length = length
-        self.frame = 0
-        self.frame_tick = 0
-        self.animation_speed = 5  # Adjust speed as needed
+    def check_crafting_requirements(self):
+        spear_requirements = {"wood": 1, "rock": 1, "vine": 1}
+        torch_requirements = {"wood": 1, "vine": 1, "leaf": 1, "coal": 1}
+        pulley_requirements = {"wood": 4, "vine": 5}
 
-    def load_sprites(self, path):
-        """ Load all sprites from the sprite sheet and store them in a dictionary. """
-        sprite_width, sprite_height = 64, 64  # Adjust based on your sprite sheet dimensions
-        spritesheet = Image.open(path)
-        sprites = {'slither': []}
+        can_craft_spear = all(
+            any(slot["item"] == item and slot["quantity"] >= quantity for slot in self.inventory)
+            for item, quantity in spear_requirements.items()
+        ) and not self.has_spear
 
-        # Extract slither frames from the first row
-        for col in range(6):  # Assuming 6 frames for slithering animation
-            x = col * sprite_width
-            y = 0  # Only the first row
-            sprite = spritesheet.crop((x, y, x + sprite_width, y + sprite_height))
-            sprite_surface = pygame.image.fromstring(sprite.tobytes(), sprite.size, sprite.mode).convert_alpha()
-            sprites['slither'].append(sprite_surface)
+        can_craft_torch = all(
+            any(slot["item"] == item and slot["quantity"] >= quantity for slot in self.inventory)
+            for item, quantity in torch_requirements.items()
+        ) and not self.has_item_in_inventory("torch")
 
-        return sprites
+        can_craft_pulley = all(
+            any(slot["item"] == item and slot["quantity"] >= quantity for slot in self.inventory)
+            for item, quantity in pulley_requirements.items()
+        ) and not self.has_item_in_inventory("pulley")
 
-    def slither(self, dx, dy):
-        """ Move snake and update sprite based on slither animation. """
-        self.x += dx
-        self.y += dy
-        self.update_sprite('slither')
+        return can_craft_spear, can_craft_torch, can_craft_pulley
 
-    def update_sprite(self, animation):
-        """ Update sprite to next frame in the animation. """
-        self.frame_tick += 1
-        if self.frame_tick >= self.animation_speed:
-            self.frame_tick = 0
-            self.frame = (self.frame + 1) % len(self.sprites[animation])
-            self.image = self.sprites[animation][self.frame]
 
-    def attack(self, target):
-        """ Attack method unique to Snake, can be expanded as needed. """
-        if self.venomous:
-            print(f"Attacking {target} with venom!")
-        else:
-            print(f"Attacking {target} with a bite!")
+    def craft_item(player, crafted_item, required_items):
+        for req_item, req_quantity in required_items.items():
+            for slot in player.inventory:
+                if slot["item"] == req_item and slot["quantity"] > 0:
+                    slot["quantity"] -= req_quantity
+                    if slot["quantity"] <= 0:
+                        slot["item"] = None
+                        slot["quantity"] = 0
+                    break
 
-    def draw(self, screen):
-        """ Draw the current sprite at the snake's position. """
-        screen.blit(self.image, (self.x, self.y))
+    def has_item_in_inventory(self, item_name):
+        """ Check if the player has an item in their inventory. """
+        return any(slot["item"] == item_name for slot in self.inventory)
+    
+    def is_inventory_full(self):
+        return all(slot["item"] is not None for slot in self.inventory)
+

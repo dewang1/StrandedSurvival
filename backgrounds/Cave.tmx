@@ -75,11 +75,11 @@
   <object id="19" x="403.521" y="240.542" width="20.6667" height="13"/>
   <object id="20" x="389.521" y="210.542" width="20.6667" height="13"/>
   <object id="7" x="389.25" y="146.792" width="22" height="10.8333"/>
-  <object id="26" x="1" y="255" width="66" height="33"/>
+  <object id="26" x="1" y="255" width="73.5" height="33"/>
   <object id="27" x="0" y="-3" width="30.5" height="259"/>
   <object id="28" x="0" y="-1.5" width="511" height="33.5"/>
   <object id="29" x="479" y="30.5" width="34" height="257"/>
-  <object id="30" x="126.5" y="256" width="351" height="31"/>
+  <object id="30" x="116.5" y="256" width="361" height="31"/>
  </objectgroup>
  <objectgroup id="5" name="Entrance">
   <object id="21" x="79.8182" y="251.455" width="31.2727" height="36.3636"/>

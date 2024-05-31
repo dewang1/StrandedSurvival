@@ -10,13 +10,13 @@ collection_cooldown = 5000  # 5000 milliseconds = 5 seconds
 last_collection_time = -5000
 
 def play_game(screen, player):
-    global last_collection_time  # Make sure to declare this as global to modify it within the function
+    global last_collection_time
 
     game_over = False
     current_background = "BEACH"  # Starting background
     inventory_open = False  # Track if the inventory is open
-    items = ["leaf", "wood", "fish", "rock", "coal", "salt", "berry"]
-
+    items = ["leaf", "wood", "fish", "rock", "coal", "salt", "berry", "vine"]
+    screen.add_dialog_box("I knew I shouldn't have jumped out of the boat. I gotta search this island for resources.", 15)
     while not game_over:
         player_rect = pygame.Rect(player.x + 20, player.y + 40, player.size - 40, player.size - 40)
         for event in pygame.event.get():
@@ -56,36 +56,41 @@ def play_game(screen, player):
                                     rock = True
                                 elif 'Fish' in collidable.layer:
                                     fish = True
-                                elif 'Salt' in collidable.layer:
+                                elif 'Salt' in collidable.layer and player.has_item_in_inventory("torch"):
                                     salt = True
                         if palm:
                             player.add_item(random.choice(['berry', 'leaf']), random.randint(1, 3))
                             print("Collected item from palm tree.")
-                            last_collection_time = current_time
                         if wood:
                             player.add_item('wood', random.randint(1, 3))
                             print("Collected wood.")
-                            last_collection_time = current_time
                         if vine:
                             player.add_item('vine', random.randint(1, 3))
                             print("Collected vine.")
-                            last_collection_time = current_time
                         if ore:
                             player.add_item(random.choice(['rock', 'coal']), random.randint(1, 3))
                             print("Collected item from ore.")
-                            last_collection_time = current_time
                         if rock:
                             player.add_item('rock', random.randint(1, 3))
                             print("Collected rock.")
-                            last_collection_time = current_time
-                        if fish:
+                        if fish and player.has_spear:
                             player.add_item('fish', random.randint(1, 3))
                             print("Collected fish.")
-                            last_collection_time = current_time
                         if salt:
                             player.add_item(random.choice(['rock', 'coal', 'salt']), random.randint(1, 3))
                             print("Collected salt.")
+                        if palm or wood or vine or ore or rock or fish or salt:
                             last_collection_time = current_time
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                if inventory_open:
+                    for index, rect in enumerate(screen.inventory_positions):
+                        if rect.collidepoint(mouse_pos):
+                            player.clear_inventory_slot(index)
+                for rect, text in screen.dialog_boxes:
+                    if rect.collidepoint(mouse_pos):
+                        screen.handle_crafting_click(player, text)
 
         keys = pygame.key.get_pressed()
         if not inventory_open:  # Prevent movement when inventory is open
@@ -150,10 +155,13 @@ def play_game(screen, player):
                     current_background = "JUNGLE"
                     player.y = 1
                 elif entrance_collided:
-                    screen.set_background("CAVE")
-                    current_background = "CAVE"
-                    player.x = 115
-                    player.y = 320
+                    if player.has_item_in_inventory("pulley"):
+                        screen.set_background("CAVE")
+                        current_background = "CAVE"
+                        player.x = 115
+                        player.y = 320
+                    else:
+                        screen.draw_dialog_box("A rock is blocking the way. You need a pulley to proceed.", 0)
 
             elif current_background == "CAVE":
                 entrance_collided = False
@@ -186,7 +194,19 @@ def play_game(screen, player):
         current_time = pygame.time.get_ticks()
         cooldown_ratio = min(1, (current_time - last_collection_time) / collection_cooldown)
 
-        screen.update_screen(player, inventory_open, cooldown_ratio)
+        # Check if crafting requirements are met
+        can_craft_spear, can_craft_torch, can_craft_pulley = player.check_crafting_requirements()
+        crafting_prompts = []
+        if can_craft_spear:
+            crafting_prompts.append("Click this box to craft a spear")
+        if can_craft_torch:
+            crafting_prompts.append("Click this box to craft a torch")
+        if can_craft_pulley:
+            crafting_prompts.append("Click this box to craft a pulley")
+
+        screen.dialog_boxes = []  # Clear dialog boxes before updating the screen
+        screen.update_screen(player, inventory_open, cooldown_ratio, crafting_prompts)
+
 
 def handle_collisions(player, collidables):
     player_rect = pygame.Rect(player.x + 20, player.y + 40, player.size - 40, player.size - 40)

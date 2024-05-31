@@ -1,7 +1,9 @@
+# screen.py
 import pygame
 from backgrounds import Backgrounds
 from player import HumanPlayer
 from color import Color
+import time
 
 class CollisionObject:
     def __init__(self, x, y, width, height):
@@ -18,12 +20,14 @@ class Screen:
         self.screen = pygame.display.set_mode((internal_width, internal_height), pygame.RESIZABLE)
         self.backgrounds = Backgrounds()
         self.font = pygame.font.SysFont(font_type, font_size)
+        self.small_font = pygame.font.SysFont(font_type, int(font_size * 0.7))
         self.clock = pygame.time.Clock()
         self.clock_tick = clock_tick
         self.current_background_property = background_property
         self.window_width = internal_width
         self.window_height = internal_height
         self.collidable_objects = []  # List to store collidable objects
+        self.dialog_messages = []  # Initialize dialog messages
 
         # Load heart spritesheet
         self.hearts_spritesheet = pygame.image.load("UI/Health_04_Heart_Red_Clear.png").convert_alpha()
@@ -144,17 +148,22 @@ class Screen:
         self.internal_surface.blit(translucent_box, (box_x, box_y))
 
     def draw_inventory(self, player):
-        """ Draw the inventory on the screen. """
+        # Draw the inventory on the screen and store item positions.
         scaled_inventory = pygame.transform.scale(self.inventory_image, (250, 250))
         inventory_x = (self.internal_width - scaled_inventory.get_width()) // 2
         inventory_y = (self.internal_height - scaled_inventory.get_height()) // 2
         self.internal_surface.blit(scaled_inventory, (inventory_x, inventory_y))
+
+        # Store positions for click detection
+        self.inventory_positions = []
 
         # Draw items in the inventory
         slot_size = 40
         for i, slot in enumerate(player.inventory):
             x = inventory_x + 10 + (i % 3) * (slot_size + 31)
             y = inventory_y + 10 + (i // 3) * (slot_size + 31)
+            self.inventory_positions.append(pygame.Rect(x + 20, y + 25, slot_size, slot_size))
+
             if slot["item"]:
                 item_image = pygame.image.load(f"items/{slot['item']}.png").convert_alpha()
                 # Get the original image dimensions
@@ -177,7 +186,8 @@ class Screen:
                 self.font.set_bold(True) 
                 quantity_text = self.font.render(str(slot["quantity"]), True, (255, 255, 255))
                 self.internal_surface.blit(quantity_text, (x + slot_size + 7, y + slot_size + 12))
-                self.font.set_bold(False) 
+                self.font.set_bold(False)
+
 
     def draw_cooldown_bar(self, cooldown_ratio):
         bar_width = 100
@@ -192,28 +202,105 @@ class Screen:
         cooldown_width = int(bar_width * cooldown_ratio)
         pygame.draw.rect(self.internal_surface, (200, 200, 200), (bar_x, bar_y, cooldown_width, bar_height))
 
-    def update_screen(self, player, inventory_open, cooldown_ratio=1):
+    def handle_crafting_click(self, player, text):
+        if "spear" in text:
+            player.craft_item("spear", {"wood": 1, "rock": 1, "vine": 1})
+            player.spritesheet_path = "characters/character_spear.png"
+            player.load_sprites()
+            player.image = player.sprites[player.current_direction][0]  # Update to the new image
+            player.has_spear = True
+        elif "torch" in text:
+            if player.is_inventory_full():
+                self.add_dialog_box("Can't craft torch, inventory is too full.")
+            else:
+                player.craft_item("torch", {"wood": 1, "vine": 1, "leaf": 1, "coal": 1})
+                player.add_item("torch", 1)
+        elif "pulley" in text:
+            if player.is_inventory_full():
+                self.add_dialog_box("Can't craft pulley, inventory is too full.")
+            else:
+                player.craft_item("pulley", {"log": 4, "vine": 5})
+                player.add_item("pulley", 1)
+
+    def wrap_text(self, font, text, max_width):
+        words = text.split(' ')
+        lines = []
+        current_line = []
+
+        for word in words:
+            test_line = current_line + [word]
+            test_width = font.size(' '.join(test_line))[0]
+            if test_width <= max_width:
+                current_line = test_line
+            else:
+                lines.append(font.render(' '.join(current_line), True, (255, 255, 255)))
+                current_line = [word]
+
+        if current_line:
+            lines.append(font.render(' '.join(current_line), True, (255, 255, 255)))
+
+        return lines
+
+    # Update the draw_dialog_box method
+    def draw_dialog_box(self, text, index=0):
+        box_width = 250
+        box_height = 50
+        margin = 10
+        box_x = self.internal_width - box_width - margin
+        box_y = self.internal_height - box_height - margin - (index * (box_height + margin))
+
+        # Define the color and transparency (RGBA format)
+        translucent_gray = (128, 128, 128, 200)  # Gray color with 80% opacity
+
+        # Create a surface with per-pixel alpha
+        dialog_box = pygame.Surface((box_width, box_height), pygame.SRCALPHA)
+        dialog_box.fill(translucent_gray)
+
+        # Render the text with the smaller font
+        wrapped_text = self.wrap_text(self.small_font, text, box_width - 20)
+        text_height = sum(line.get_height() for line in wrapped_text)
+        
+        if text_height > box_height - 20:
+            box_height = text_height + 20
+            dialog_box = pygame.Surface((box_width, box_height), pygame.SRCALPHA)
+            dialog_box.fill(translucent_gray)
+
+        # Render each line of text
+        y_offset = 10
+        for line in wrapped_text:
+            text_rect = line.get_rect(center=(box_width // 2, y_offset + line.get_height() // 2))
+            dialog_box.blit(line, text_rect)
+            y_offset += line.get_height()
+
+        # Blit the dialog box onto the internal surface
+        self.internal_surface.blit(dialog_box, (box_x, box_y))
+
+        # Store the position and text of the dialog box for click detection
+        if not hasattr(self, 'dialog_boxes'):
+            self.dialog_boxes = []
+        self.dialog_boxes.append((pygame.Rect(box_x, box_y, box_width, box_height), text))
+
+    def update_screen(self, player, inventory_open, cooldown_ratio=1, crafting_prompts=[]):
         self.refresh_background()
 
         # Calculate the scaling factors
         scale_factor_y = self.internal_height / 288
 
         # Combine objects and player into a single list
-        all_sprites = [(obj.x, obj.y, obj.y * scale_factor_y  + obj.height * scale_factor_y, obj.gid) for obj in self.objects]
+        all_sprites = [(obj.x, obj.y, obj.y * scale_factor_y + obj.height * scale_factor_y, obj.gid) for obj in self.objects]
         all_sprites.append((player.x, player.y, player.y + player.size, player))
 
         # Sort all sprites by their y-coordinate
         all_sprites.sort(key=lambda sprite: sprite[2])
-
 
         # Draw all sprites in sorted order
         tmx_data = self.backgrounds.load_tmx(self.current_background_path)
         for sprite in all_sprites:
             if isinstance(sprite[3], HumanPlayer):
                 sprite[3].draw(self.internal_surface)
-                pygame.draw.circle(self.internal_surface, Color.RED, (sprite[3].x, sprite[3].y), 5) 
-                player_rect = pygame.Rect(player.x + 20 , player.y + 40, player.size - 40, player.size - 40)
-                pygame.draw.rect(self.internal_surface, (255, 0, 0), player_rect, 2)  
+                pygame.draw.circle(self.internal_surface, Color.RED, (sprite[3].x, sprite[3].y), 5)
+                player_rect = pygame.Rect(player.x + 20, player.y + 40, player.size - 40, player.size - 40)
+                pygame.draw.rect(self.internal_surface, (255, 0, 0), player_rect, 2)
             else:
                 tile = tmx_data.get_tile_image_by_gid(sprite[3])
                 if tile:
@@ -221,6 +308,7 @@ class Screen:
                     transformed_surface = pygame.transform.scale(self.background_surface, (self.internal_width, self.internal_height))
                     self.internal_surface.blit(transformed_surface, (0, 0))
                     self.background_surface.fill((0, 0, 0, 0))  # fill with fully transparent color
+
         self.draw_collidable_objects()
         self.draw_translucent_box()
         self.draw_bars(player)
@@ -231,6 +319,25 @@ class Screen:
 
         if cooldown_ratio < 1:
             self.draw_cooldown_bar(cooldown_ratio)
+
+        # Clear dialog boxes before updating the screen
+        self.dialog_boxes = []
+        for i, prompt in enumerate(crafting_prompts):
+            self.draw_dialog_box(prompt, i)
+
+        # Draw and manage additional dialog messages
+        current_time = time.time()
+        self.dialog_messages = [(msg, timestamp, duration) for msg, timestamp, duration in self.dialog_messages if current_time - timestamp < duration]
+
+        for i, (message, _, _) in enumerate(self.dialog_messages):
+            self.draw_dialog_box(message, i + len(crafting_prompts))
+
+        # Apply cave darkness effect if in cave
+        if self.current_background_property == "CAVE":
+            if player.has_item_in_inventory("torch"):
+                self.apply_light_effect(player)
+            else:
+                self.apply_darkness_effect(player)
 
         # Calculate the scaling factors
         scale_x = self.window_width / self.internal_width
@@ -255,3 +362,29 @@ class Screen:
         self.screen.blit(scaled_surface, (offset_x, offset_y))
         self.clock.tick(self.clock_tick)
         pygame.display.update()
+
+
+
+
+
+
+    def apply_darkness_effect(self, player):
+        darkness_surface = pygame.Surface((self.internal_width, self.internal_height), pygame.SRCALPHA)
+        darkness_surface.fill((0, 0, 0, 255))  # Full opacity
+
+        pygame.draw.circle(darkness_surface, (0, 0, 0, 0), (player.x + player.size // 2, player.y + player.size // 2), 30)
+        self.internal_surface.blit(darkness_surface, (0, 0))
+
+    def apply_light_effect(self, player):
+        light_surface = pygame.Surface((self.internal_width, self.internal_height), pygame.SRCALPHA)
+        light_surface.fill((0, 0, 0, 200))  # Adjust the alpha to make it almost pitch black
+
+        pygame.draw.circle(light_surface, (0, 0, 0, 0), (player.x + player.size // 2, player.y + player.size // 2), 300)
+        self.internal_surface.blit(light_surface, (0, 0))
+    
+    def add_dialog_box(self, message, duration=5):
+        if not hasattr(self, 'dialog_messages'):
+            self.dialog_messages = []
+        current_time = time.time()
+        self.dialog_messages.append((message, current_time, duration))
+
