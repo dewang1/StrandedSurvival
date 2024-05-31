@@ -47,11 +47,14 @@ class Screen:
         self.hunger_icon = pygame.transform.scale(self.hunger_icon, (int(23 * self.bar_scale_factor), int(23 * self.bar_scale_factor)))
         self.temperature_icon = pygame.transform.scale(self.temperature_icon, (int(23 * self.bar_scale_factor), int(23 * self.bar_scale_factor)))
 
-        # Load and position inventory icon
+        # Load main icon and inventory icon
+        self.main_icon = pygame.image.load("UI/Settings_Cross03.png").convert_alpha()  # Placeholder for your main icon
         self.inventory_icon = pygame.image.load("UI/Inventory_Example_03.png").convert_alpha()
-        self.inventory_icon = pygame.transform.scale(self.inventory_icon, (int(200), int(200)))
-        self.inventory_icon_rect = self.inventory_icon.get_rect(topright=(self.internal_width - 10, 10))
-        self.show_inventory = False
+
+        # Position icons
+        self.main_icon_rect = self.main_icon.get_rect(topright=(self.internal_width - 10, 10))
+        self.inventory_icon_rect = self.inventory_icon.get_rect(center=self.main_icon_rect.center)
+        self.show_inventory_icon = False
 
     def set_background(self, background_property):
         self.current_background_property = background_property
@@ -126,12 +129,6 @@ class Screen:
         for obj in self.collidable_objects:
             pygame.draw.rect(self.internal_surface, (255, 0, 0), obj, 2)  # Draw the collidables in red
 
-    def draw_inventory_popup(self):
-        inventory_surface = pygame.Surface((self.internal_width // 2, self.internal_height // 2))
-        inventory_surface.fill((50, 50, 50))
-        inventory_rect = inventory_surface.get_rect(center=(self.internal_width // 2, self.internal_height // 2))
-        self.internal_surface.blit(inventory_surface, inventory_rect)
-
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -140,8 +137,9 @@ class Screen:
             elif event.type == pygame.VIDEORESIZE:
                 self.handle_resize(event)
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if self.inventory_icon_rect.collidepoint(event.pos):
-                    self.show_inventory = not self.show_inventory
+                if self.main_icon_rect.collidepoint(event.pos):
+                    self.show_inventory_icon = not self.show_inventory_icon
+                    print(f"Main icon clicked, show_inventory_icon: {self.show_inventory_icon}")  # Debug print
 
     def update_screen(self, player):
         self.handle_events()
@@ -150,12 +148,13 @@ class Screen:
         self.draw_bars(player)
         self.draw_hearts(player)
 
-        # Draw inventory icon
-        self.internal_surface.blit(self.inventory_icon, self.inventory_icon_rect)
+        # Draw main icon
+        self.internal_surface.blit(self.main_icon, self.main_icon_rect)
 
-        # Draw inventory popup if toggled
-        if self.show_inventory:
-            self.draw_inventory_popup()
+        # Draw inventory icon if toggled
+        if self.show_inventory_icon:
+            print("Drawing inventory icon")  # Debug print
+            self.internal_surface.blit(self.inventory_icon, self.inventory_icon_rect)
 
         # Calculate the scaling factors
         scale_x = self.window_width / self.internal_width
@@ -181,5 +180,3 @@ class Screen:
         self.clock.tick(self.clock_tick)
         pygame.display.update()
 
-# Ensure to update your asset path and names as needed.
-# Make sure to load the `inventory_icon.png` in the same way as other images.
