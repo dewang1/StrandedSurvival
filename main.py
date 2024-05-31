@@ -1,4 +1,5 @@
 import sys
+import random
 import pygame
 from player import HumanPlayer
 from screen import Screen

@@ -56,6 +56,15 @@ class Screen:
         self.hunger_icon = pygame.transform.scale(self.hunger_icon, (int(23 * self.bar_scale_factor), int(23 * self.bar_scale_factor)))
         self.temperature_icon = pygame.transform.scale(self.temperature_icon, (int(23 * self.bar_scale_factor), int(23 * self.bar_scale_factor)))
 
+        # Load main icon and inventory icon
+        self.main_icon = pygame.image.load("UI/Settings_Cross03.png").convert_alpha()  # Placeholder for your main icon
+        self.inventory_icon = pygame.image.load("UI/Inventory_Example_03.png").convert_alpha()
+
+        # Position icons
+        self.main_icon_rect = self.main_icon.get_rect(topright=(self.internal_width - 10, 10))
+        self.inventory_icon_rect = self.inventory_icon.get_rect(center=self.main_icon_rect.center)
+        self.show_inventory_icon = False
+
     def set_background(self, background_property):
         self.current_background_property = background_property
         self.background, self.objects, tmx_data = getattr(self.backgrounds, background_property)()
