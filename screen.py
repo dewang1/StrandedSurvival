@@ -8,11 +8,13 @@ class CollisionObject:
         self.rect = pygame.Rect(x, y, width, height)
 
 class Screen:
-    def __init__(self, internal_width=800, internal_height=450, background_property="JUNGLE", font_type="monospace", font_size=35, clock_tick=30):
+    def __init__(self, internal_width=800, internal_height=450, background_property="BEACH", font_type="monospace", font_size=18, clock_tick=30):
         pygame.display.init()
         self.internal_width = internal_width
         self.internal_height = internal_height
         self.internal_surface = pygame.Surface((internal_width, internal_height))
+        self.background_surface = pygame.Surface((512, 288), pygame.SRCALPHA)
+        self.background_surface.fill((0, 0, 0, 0))  # fill with fully transparent color
         self.screen = pygame.display.set_mode((internal_width, internal_height), pygame.RESIZABLE)
         self.backgrounds = Backgrounds()
         self.font = pygame.font.SysFont(font_type, font_size)
@@ -28,6 +30,9 @@ class Screen:
         self.heart_width, self.heart_height = 48, 48
         self.heart_scale_factor = 0.83  # Scale hearts to 83% of original size
         self.scaled_heart_height = int(self.heart_height * self.heart_scale_factor)
+
+        # Load inventory image
+        self.inventory_image = pygame.image.load("UI/Inventory_Example_03.png").convert_alpha()
 
         # Initialize background and objects
         self.set_background(background_property)
@@ -58,7 +63,8 @@ class Screen:
 
     def set_background(self, background_property):
         self.current_background_property = background_property
-        self.background, tmx_data = getattr(self.backgrounds, background_property)()
+        self.background, self.objects, tmx_data = getattr(self.backgrounds, background_property)()
+        self.current_background_path = f"backgrounds/{background_property}.tmx"
         self.background = pygame.transform.scale(self.background, (self.internal_width, self.internal_height))
 
         # Load collidable objects for the new background
@@ -129,32 +135,111 @@ class Screen:
         for obj in self.collidable_objects:
             pygame.draw.rect(self.internal_surface, (255, 0, 0), obj, 2)  # Draw the collidables in red
 
-    def handle_events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
-            elif event.type == pygame.VIDEORESIZE:
-                self.handle_resize(event)
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                if self.main_icon_rect.collidepoint(event.pos):
-                    self.show_inventory_icon = not self.show_inventory_icon
-                    print(f"Main icon clicked, show_inventory_icon: {self.show_inventory_icon}")  # Debug print
+    def draw_translucent_box(self):
+        # Define the dimensions and position of the box
+        box_width = 240
+        box_height = 140
+        box_x = 5
+        box_y = self.internal_height - box_height - 10
 
-    def update_screen(self, player):
-        self.handle_events()
+        # Define the color and transparency (RGBA format)
+        translucent_gray = (128, 128, 128, 128)  # Gray color with 50% opacity
+
+        # Create a surface with per-pixel alpha
+        translucent_box = pygame.Surface((box_width, box_height), pygame.SRCALPHA)
+        translucent_box.fill(translucent_gray)
+
+        # Blit the translucent box onto the internal surface
+        self.internal_surface.blit(translucent_box, (box_x, box_y))
+
+    def draw_inventory(self, player):
+        """ Draw the inventory on the screen. """
+        scaled_inventory = pygame.transform.scale(self.inventory_image, (250, 250))
+        inventory_x = (self.internal_width - scaled_inventory.get_width()) // 2
+        inventory_y = (self.internal_height - scaled_inventory.get_height()) // 2
+        self.internal_surface.blit(scaled_inventory, (inventory_x, inventory_y))
+
+        # Draw items in the inventory
+        slot_size = 40
+        for i, slot in enumerate(player.inventory):
+            x = inventory_x + 10 + (i % 3) * (slot_size + 31)
+            y = inventory_y + 10 + (i // 3) * (slot_size + 31)
+            if slot["item"]:
+                item_image = pygame.image.load(f"items/{slot['item']}.png").convert_alpha()
+                # Get the original image dimensions
+                original_width, original_height = item_image.get_size()
+
+                # Calculate the aspect ratio
+                aspect_ratio = original_width / original_height
+
+                # Calculate the new dimensions
+                if original_width > original_height:
+                    new_width = slot_size
+                    new_height = int(slot_size / aspect_ratio)
+                else:
+                    new_width = int(slot_size * aspect_ratio)
+                    new_height = slot_size
+
+                # Scale the image
+                item_image = pygame.transform.scale(item_image, (new_width, new_height))
+                self.internal_surface.blit(item_image, (x + 20, y + 25))
+                self.font.set_bold(True) 
+                quantity_text = self.font.render(str(slot["quantity"]), True, (255, 255, 255))
+                self.internal_surface.blit(quantity_text, (x + slot_size + 7, y + slot_size + 12))
+                self.font.set_bold(False) 
+
+    def draw_cooldown_bar(self, cooldown_ratio):
+        bar_width = 100
+        bar_height = 20
+        bar_x = self.internal_width - bar_width - 20
+        bar_y = 20
+
+        # Draw the background of the bar
+        pygame.draw.rect(self.internal_surface, (50, 50, 50), (bar_x, bar_y, bar_width, bar_height))
+
+        # Draw the foreground of the bar
+        cooldown_width = int(bar_width * cooldown_ratio)
+        pygame.draw.rect(self.internal_surface, (200, 200, 200), (bar_x, bar_y, cooldown_width, bar_height))
+
+    def update_screen(self, player, inventory_open, cooldown_ratio=1):
         self.refresh_background()
-        self.draw_player(player)
+
+        # Calculate the scaling factors
+        scale_factor_y = self.internal_height / 288
+
+        # Combine objects and player into a single list
+        all_sprites = [(obj.x, obj.y, obj.y * scale_factor_y  + obj.height * scale_factor_y, obj.gid) for obj in self.objects]
+        all_sprites.append((player.x, player.y, player.y + player.size, player))
+
+        # Sort all sprites by their y-coordinate
+        all_sprites.sort(key=lambda sprite: sprite[2])
+
+
+        # Draw all sprites in sorted order
+        tmx_data = self.backgrounds.load_tmx(self.current_background_path)
+        for sprite in all_sprites:
+            if isinstance(sprite[3], HumanPlayer):
+                sprite[3].draw(self.internal_surface)
+                pygame.draw.circle(self.internal_surface, Color.RED, (sprite[3].x, sprite[3].y), 5) 
+                player_rect = pygame.Rect(player.x + 20 , player.y + 40, player.size - 40, player.size - 40)
+                pygame.draw.rect(self.internal_surface, (255, 0, 0), player_rect, 2)  
+            else:
+                tile = tmx_data.get_tile_image_by_gid(sprite[3])
+                if tile:
+                    self.background_surface.blit(tile, (sprite[0], sprite[1]))
+                    transformed_surface = pygame.transform.scale(self.background_surface, (self.internal_width, self.internal_height))
+                    self.internal_surface.blit(transformed_surface, (0, 0))
+                    self.background_surface.fill((0, 0, 0, 0))  # fill with fully transparent color
+        self.draw_collidable_objects()
+        self.draw_translucent_box()
         self.draw_bars(player)
         self.draw_hearts(player)
 
-        # Draw main icon
-        self.internal_surface.blit(self.main_icon, self.main_icon_rect)
+        if inventory_open:
+            self.draw_inventory(player)
 
-        # Draw inventory icon if toggled
-        if self.show_inventory_icon:
-            print("Drawing inventory icon")  # Debug print
-            self.internal_surface.blit(self.inventory_icon, self.inventory_icon_rect)
+        if cooldown_ratio < 1:
+            self.draw_cooldown_bar(cooldown_ratio)
 
         # Calculate the scaling factors
         scale_x = self.window_width / self.internal_width
