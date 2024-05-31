@@ -5,7 +5,7 @@
  <tileset firstgid="1681" source="../tiles/10_dirt.tsx"/>
  <tileset firstgid="1961" source="../tiles/trees.tsx"/>
  <tileset firstgid="1966" source="../tiles/5_waterfall.tsx"/>
- <tileset firstgid="2326" source="../../../../Downloads/tilesets_edit/plants.tsx"/>
+ <!-- <tileset firstgid="2326" source="../../../../Downloads/tilesets_edit/plants.tsx"/> -->
  <layer id="1" name="Tile Layer 1" width="32" height="18" locked="1">
   <data encoding="csv">
 63,64,63,64,63,64,63,64,63,64,63,64,63,64,63,64,63,64,63,64,63,64,63,64,63,64,63,64,63,64,63,64,

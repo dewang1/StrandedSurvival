@@ -3,7 +3,8 @@
  <tileset firstgid="1" source="../tiles/1_terrain.tsx"/>
  <tileset firstgid="1441" source="../tiles/3_plants.tsx"/>
  <tileset firstgid="1681" source="../tiles/10_dirt.tsx"/>
- <tileset firstgid="1961" source="../../../../Downloads/tilesets_edit/9_beach.tsx"/>
+ <tileset firstgid="1961" source="../tiles/9_beach.tsx"/>
+ <!-- <tileset firstgid="1961" source="../../../../Downloads/tilesets_edit/9_beach.tsx"/> -->
  <tileset firstgid="2249" source="../tiles/trees.tsx"/>
  <layer id="1" name="Tile Layer 1" width="32" height="18">
   <data encoding="csv">
