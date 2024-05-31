@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="18" tilewidth="16" tileheight="16" infinite="0" nextlayerid="4" nextobjectid="1">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="32" height="18" tilewidth="16" tileheight="16" infinite="0" nextlayerid="5" nextobjectid="15">
  <tileset firstgid="1" source="../tiles/8_cave.tsx"/>
  <layer id="2" name="floor" width="32" height="18">
   <data encoding="csv">
@@ -67,4 +67,17 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="4" name="Collidables">
+  <object id="3" x="106.25" y="53.125" width="28" height="27.3333"/>
+  <object id="4" x="280.5205" y="76.041675" width="28.6667" height="30"/>
+  <object id="5" x="408.125" y="56.25" width="22" height="22"/>
+  <object id="6" x="535.4195" y="79.166675" width="26.6667" height="30"/>
+  <object id="7" x="306.25" y="204.791675" width="22" height="27.3333"/>
+  <object id="9" x="123.395825" y="257.8125" width="32" height="24.6667"/>
+  <object id="10" x="177.0835" y="230" width="30" height="26"/>
+  <object id="11" x="429.2925" y="326.458375" width="28" height="28.6667"/>
+  <object id="12" x="627.0835" y="357.395875" width="30.6667" height="22.6667"/>
+  <object id="13" x="679.25" y="298.020875" width="31.3333" height="30"/>
+  <object id="14" x="601.042375" y="202.291675" width="29.3333" height="30.6667"/>
+ </objectgroup>
 </map>

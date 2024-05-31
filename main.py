@@ -38,6 +38,9 @@ def play_game(screen, player):
         player.x = max(0, min(player.x, screen.internal_width - player.size))
         player.y = max(0, min(player.y, screen.internal_height - player.size))
 
+        # Handle collisions
+        handle_collisions(player, screen.collidable_objects)
+
         # Background transitions based on the current environment and player's position
         if current_background == "BEACH":
             if player.x <= 0 and last_background != "JUNGLE":
@@ -105,6 +108,20 @@ def play_game(screen, player):
 
         screen.update_screen(player)
 
+
+def handle_collisions(player, collidables):
+    player_rect = pygame.Rect(player.x, player.y, player.size, player.size)
+    for collidable in collidables:
+        if player_rect.colliderect(collidable):
+            # Adjust player position to prevent overlapping with collidable objects
+            if player.current_direction == 'up':
+                player.y += speed
+            elif player.current_direction == 'down':
+                player.y -= speed
+            elif player.current_direction == 'left':
+                player.x += speed
+            elif player.current_direction == 'right':
+                player.x -= speed
 
 if __name__ == "__main__":
     pygame.init()
