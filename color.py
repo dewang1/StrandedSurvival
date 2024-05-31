@@ -1,11 +1,11 @@
 """
-File Name: color.py
-Project Name: Choose Your Own Adventure Game: Stranded Survival: Island Escape
-Team Members: Bhargav, Suchit, Derek
-Date: 5/31/24
-Task Description: Assigns some RGB values to colors. 
+Names: Derek Wang, Suchit Basineni, Bhargav Yerramsetty
+Date: 5/31/2024
+color.py
+Description: This file contains the Color class, which is responsible for storing color values.
 """
-class Color: #Assign RGB Value to a variable
+
+class Color:
 	RED = (255,0,0)
 	BLUE = (0,0,255)
 	YELLOW = (255,255,0)

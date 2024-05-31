@@ -1,26 +1,29 @@
 """
-File Name: player.py
-Project Name: Choose Your Own Adventure Game: Stranded Survival: Island Escape
-Team Members: Bhargav, Suchit, Derek
-Date: 5/31/24
-Task Description: Specific game entities and the various properties are defined here. 
+Names: Derek Wang, Suchit Basineni, Bhargav Yerramsetty
+Date: 5/31/2024
+player.py
+Description: This file contains the Player, HumanPlayer, and Raft classes, which are responsible for handling player movement, inventory, crafting, and attributes.
 """
+
 import pygame
 from PIL import Image
 from characters import Characters  # Ensure this import is correct
+import time
 
 class Player:
-    def __init__(self, x, y, size, image): # This initializes the players position, size, and image. 
+    def __init__(self, x, y, width, height, image):
         self.x = x
         self.y = y
-        self.size = size
+        self.width = width
+        self.height = height
         self.image = image  # This should be a pygame.Surface already
 
 class HumanPlayer(Player):
-    def __init__(self, x, y, max_health, health, max_hunger, hunger, max_temperature, temperature): # It initializes the human player with health, hunger, temperature, and inventory, sprites, and animations. 
+    def __init__(self, x, y, max_health, health, max_hunger, hunger, max_temperature, temperature, width=64, height=64):
         self.spritesheet_path = Characters.PLAYER
         self.load_sprites()
-        super().__init__(x, y, size=64, image=self.sprites['down'][0])
+        super().__init__(x, y, width, height, image=self.sprites['down'][0])
+        self.last_health_decrease_time = time.time()
         self.current_direction = 'down'
         self.movement = 'stopped'
         self.frame = 1  # Start from the second frame for walking animation
@@ -38,6 +41,8 @@ class HumanPlayer(Player):
 
         # Initialize inventory
         self.inventory = [{"item": None, "quantity": 0} for _ in range(9)]
+
+        self.inventory_opened = False
 
         # Initialize spear flag
         self.has_spear = False
@@ -140,7 +145,11 @@ class HumanPlayer(Player):
         """ Draw the current sprite at the player's position. """
         screen.blit(self.image, (self.x, self.y))
 
-    def add_item(self, item, quantity): # It will add an item to the player’s inventory and can stack.  
+    def get_hitbox(self):
+        """ Return the hitbox for the player. """
+        return pygame.Rect(self.x + 20, self.y + 40, self.width - 40, self.height - 40)
+
+    def add_item(self, item, quantity):
         """ Add an item to the inventory. """
         max_stack_size = 30
 
@@ -173,9 +182,9 @@ class HumanPlayer(Player):
         if 0 <= slot_index < len(self.inventory):
             self.inventory[slot_index] = {"item": None, "quantity": 0}
 
-    def check_crafting_requirements(self): # It checks if the player has the required items to crafts specific items.
-        spear_requirements = {"wood": 1, "rock": 1, "vine": 1}
-        torch_requirements = {"wood": 1, "vine": 1, "leaf": 1, "coal": 1}
+    def check_crafting_requirements(self):
+        spear_requirements = {"wood": 3, "rock": 3, "vine": 3}
+        torch_requirements = {"wood": 2, "vine": 3, "leaf": 4, "coal": 3}
         pulley_requirements = {"wood": 4, "vine": 5}
 
         can_craft_spear = all(
@@ -195,8 +204,7 @@ class HumanPlayer(Player):
 
         return can_craft_spear, can_craft_torch, can_craft_pulley
 
-
-    def craft_item(player, crafted_item, required_items): # It crafts an item by removing the required amount of quantities in the inventory. 
+    def craft_item(player, crafted_item, required_items):
         for req_item, req_quantity in required_items.items():
             for slot in player.inventory:
                 if slot["item"] == req_item and slot["quantity"] > 0:
@@ -212,56 +220,82 @@ class HumanPlayer(Player):
     
     def is_inventory_full(self): # This checks if the player’s inventory is full.
         return all(slot["item"] is not None for slot in self.inventory)
+    
+    def check_item_quantity(self, item, quantity):
+        total_quantity = sum(slot["quantity"] for slot in self.inventory if slot["item"] == item)
+        return total_quantity >= quantity
+    
+    def decrease_hunger(self):
+        if self.hunger > 0:
+            self.hunger -= 1
+    
+    def decrease_health(self, amount=1):
+        if self.health > 0:
+            self.health -= amount
 
-class Snake(Player):
-    def __init__(self, x, y, venomous, length):
-        # Initialize the parent Player class
-        self.spritesheet_path = Characters.SNAKE  # Replace with the correct path to the snake sprite sheet
-        self.sprites = self.load_sprites(self.spritesheet_path)
-        super().__init__(x, y, size=64, image=self.sprites['slither'][0])  # Initial size and image
-        self.venomous = venomous
-        self.length = length
-        self.frame = 0
-        self.frame_tick = 0
-        self.animation_speed = 5  # Adjust speed as needed
+    
+    def decrease_temperature(self):
+        if self.temperature > 0:
+            self.temperature -= 1
 
-    def load_sprites(self, path):
-        """ Load all sprites from the sprite sheet and store them in a dictionary. """
-        sprite_width, sprite_height = 64, 64  # Adjust based on your sprite sheet dimensions
-        spritesheet = Image.open(path)
-        sprites = {'slither': []}
+    def increase_temperature(self):
+        if self.temperature < self.max_temperature:
+            self.temperature += 1
 
-        # Extract slither frames from the first row
-        for col in range(6):  # Assuming 6 frames for slithering animation
-            x = col * sprite_width
-            y = 0  # Only the first row
-            sprite = spritesheet.crop((x, y, x + sprite_width, y + sprite_height))
-            sprite_surface = pygame.image.fromstring(sprite.tobytes(), sprite.size, sprite.mode).convert_alpha()
-            sprites['slither'].append(sprite_surface)
+    def consume_item(self, item):
+        if item == "berry":
+            self.hunger = min(self.max_hunger, self.hunger + 3)
+        elif item == "fish":
+            self.hunger = min(self.max_hunger, self.hunger + 8)
+    
+    def clear_inventory_slot(self, slot_index):
+        if 0 <= slot_index < len(self.inventory):
+            item = self.inventory[slot_index]["item"]
+            if item:
+                self.consume_item(item)
+            self.inventory[slot_index] = {"item": None, "quantity": 0}
 
-        return sprites
+# Add this class to player.py
+class Raft(HumanPlayer):
+    def __init__(self, x, y, max_health, health, max_hunger, hunger, max_temperature, temperature):
+        super().__init__(x, y, max_health, health, max_hunger, hunger, max_temperature, temperature, 163, 224)
+        self.spritesheet_path = Characters.RAFT
+        self.load_sprites()
+        self.current_direction = 'down'
+        self.movement = 'stopped'
+        self.frame = 1  # Start from the second frame for walking animation
+        self.frame_tick = 0  # Frame update ticker
+        self.last_key_press_time = 0
+        self.key_press_threshold = 50
 
-    def slither(self, dx, dy):
-        """ Move snake and update sprite based on slither animation. """
-        self.x += dx
-        self.y += dy
-        self.update_sprite('slither')
+    def load_sprites(self):
+        """ Load all sprites from the spritesheet and store them in a dictionary. """
+        sprite_width, sprite_height = 163, 224  # Adjust if different
+        self.sprites = {'down': [], 'left': [], 'right': [], 'up': []}
+        self.still_sprites = {}  # Add this line to define still_sprites
+        directions = {'down': 0, 'right': 1, 'left': 2, 'up': 3}
 
-    def update_sprite(self, animation):
-        """ Update sprite to next frame in the animation. """
-        self.frame_tick += 1
-        if self.frame_tick >= self.animation_speed:
-            self.frame_tick = 0
-            self.frame = (self.frame + 1) % len(self.sprites[animation])
-            self.image = self.sprites[animation][self.frame]
+        spritesheet = Image.open(self.spritesheet_path)
+        for direction, row in directions.items():
+            self.still_sprites[direction] = spritesheet.crop((0, row * sprite_height, sprite_width, (row + 1) * sprite_height))
+            self.still_sprites[direction] = pygame.image.fromstring(self.still_sprites[direction].tobytes(), self.still_sprites[direction].size, self.still_sprites[direction].mode).convert_alpha()
 
-    def attack(self, target):
-        """ Attack method unique to Snake, can be expanded as needed. """
-        if self.venomous:
-            print(f"Attacking {target} with venom!")
+            for col in range(4):  # Assuming 4 frames for each direction
+                x = col * sprite_width
+                y = row * sprite_height
+                sprite = spritesheet.crop((x, y, x + sprite_width, y + sprite_height))
+                sprite_surface = pygame.image.fromstring(sprite.tobytes(), sprite.size, sprite.mode).convert_alpha()
+                self.sprites[direction].append(sprite_surface)
+
+    def get_hitbox(self):
+        """ Return a custom hitbox for the raft, varying by direction. """
+        if self.current_direction == 'down':
+            return pygame.Rect(self.x + 40, self.y + 97, 90, 95)
+        elif self.current_direction == 'up':
+            return pygame.Rect(self.x + 37, self.y + 39, 90, 95)
+        elif self.current_direction == 'left':
+            return pygame.Rect(self.x + 20, self.y + 110, 100, 85)
+        elif self.current_direction == 'right':
+            return pygame.Rect(self.x + 35, self.y + 110, 105, 85)
         else:
-            print(f"Attacking {target} with a bite!")
-
-    def draw(self, screen):
-        """ Draw the current sprite at the snake's position. """
-        screen.blit(self.image, (self.x, self.y))
+            return pygame.Rect(self.x + 35, self.y + 110, 105, 85)

@@ -1,13 +1,16 @@
 """
-File Name: collidable.py
-Project Name: Choose Your Own Adventure Game: Stranded Survival: Island Escape
-Team Members: Bhargav, Suchit, Derek
-Date: 5/31/24
-Task Description: Represents objects that can collide with other objects inside of the game.
+Names: Derek Wang, Suchit Basineni, Bhargav Yerramsetty
+Date: 5/31/2024
+collidable.py
+Description: This file contains the Collidable class, which is responsible for storing information about collidable objects.
 """
+
+# Import the pygame library
 import pygame
 
-class Collidable: 
-    def __init__(self, rect, layer): #defines the position, size, and object layer
+# Define a class for collidable objects
+class Collidable:
+    # Initialize a Collidable object with a rectangle and a layer
+    def __init__(self, rect, layer):
         self.rect = rect
         self.layer = layer

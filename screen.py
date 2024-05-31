@@ -1,11 +1,10 @@
 """
-File Name: screen.py
-Project Name: Choose Your Own Adventure Game: Stranded Survival: Island Escape
-Team Members: Bhargav, Suchit, Derek
-Date: 5/31/24
-Task Description: Manages the visual display by drawing the various GUI/UI features. 
+Names: Derek Wang, Suchit Basineni, Bhargav Yerramsetty
+Date: 5/31/2024
+screen.py
+Description: This file contains the Screen class, which is responsible for rendering the game screen.
 """
-# screen.py
+
 import pygame
 from backgrounds import Backgrounds
 from player import HumanPlayer
@@ -14,27 +13,49 @@ import time
 
 class CollisionObject: #Initializes the collidable object with rectangles and defines the position & size. 
     def __init__(self, x, y, width, height):
+        # Initialize a rect object for collision detection
         self.rect = pygame.Rect(x, y, width, height)
 
 class Screen:
-    def __init__(self, internal_width=800, internal_height=450, background_property="BEACH", font_type="monospace", font_size=18, clock_tick=30): #This initializes the screen size, surfaces, font, sprite sheets, images, and clock. 
+    def __init__(self, internal_width=800, internal_height=450, background_property="BEACH", font_type="monospace", font_size=18, clock_tick=30):
+        # Initialize display
         pygame.display.init()
         self.internal_width = internal_width
         self.internal_height = internal_height
+        
+        # Create surfaces for rendering
         self.internal_surface = pygame.Surface((internal_width, internal_height))
         self.background_surface = pygame.Surface((512, 288), pygame.SRCALPHA)
-        self.background_surface.fill((0, 0, 0, 0))  # fill with fully transparent color
+        self.background_surface.fill((0, 0, 0, 0))  # Fill with fully transparent color
+        
+        # Set display mode and initialize background manager
         self.screen = pygame.display.set_mode((internal_width, internal_height), pygame.RESIZABLE)
         self.backgrounds = Backgrounds()
+        
+        # Initialize fonts
         self.font = pygame.font.SysFont(font_type, font_size)
         self.small_font = pygame.font.SysFont(font_type, int(font_size * 0.7))
+        self.font.set_bold(True)
+        self.small_font.set_bold(True)
+        
+        # Initialize clock for controlling frame rate
         self.clock = pygame.time.Clock()
         self.clock_tick = clock_tick
+        
+        # Set initial background property
         self.current_background_property = background_property
+        
+        # Store window dimensions
         self.window_width = internal_width
         self.window_height = internal_height
+        
+        # Initialize lists for collidable objects and dialog messages
         self.collidable_objects = []  # List to store collidable objects
         self.dialog_messages = []  # Initialize dialog messages
+        
+        # Initialize entrance dialog flag and waves list
+        self.entrance_dialog_added = False
+        self.waves = []
 
         # Load heart spritesheet
         self.hearts_spritesheet = pygame.image.load("UI/Health_04_Heart_Red_Clear.png").convert_alpha()
@@ -71,6 +92,58 @@ class Screen:
         self.main_icon_rect = self.main_icon.get_rect(topright=(self.internal_width - 10, 10))
         self.inventory_icon_rect = self.inventory_icon.get_rect(center=self.main_icon_rect.center)
         self.show_inventory_icon = False
+        
+    def win_screen(self):
+        # Fill the screen with a black background
+        self.internal_surface.fill((0, 0, 0))
+        
+        # Define the font and size for the win message
+        font = pygame.font.SysFont("monospace", 64)
+        font.set_bold(True)
+        
+        # Render the text
+        text = font.render("You Win", True, (0, 255, 0))
+        
+        # Calculate the position to center the text
+        text_rect = text.get_rect(center=(self.internal_width / 2, self.internal_height / 2))
+        
+        # Blit the text onto the internal surface
+        self.internal_surface.blit(text, text_rect)
+        
+        # Scale the internal surface to fit the window
+        scaled_surface = pygame.transform.scale(self.internal_surface, (self.window_width, self.window_height))
+        self.screen.fill((0, 0, 0))  # Fill with black
+        self.screen.blit(scaled_surface, (0, 0))
+        pygame.display.update()
+        
+        # Wait for a few seconds before exiting or restarting
+        pygame.time.wait(3000)
+
+    def death_screen(self):
+        # Fill the screen with a black background
+        self.internal_surface.fill((0, 0, 0))
+        
+        # Define the font and size for the death message
+        font = pygame.font.SysFont("monospace", 64)
+        font.set_bold(True)
+        
+        # Render the text
+        text = font.render("You Died", True, (255, 0, 0))
+        
+        # Calculate the position to center the text
+        text_rect = text.get_rect(center=(self.internal_width / 2, self.internal_height / 2))
+        
+        # Blit the text onto the internal surface
+        self.internal_surface.blit(text, text_rect)
+        
+        # Scale the internal surface to fit the window
+        scaled_surface = pygame.transform.scale(self.internal_surface, (self.window_width, self.window_height))
+        self.screen.fill((0, 0, 0))  # Fill with black
+        self.screen.blit(scaled_surface, (0, 0))
+        pygame.display.update()
+        
+        # Wait for a few seconds before exiting or restarting
+        pygame.time.wait(3000)
 
     def set_background(self, background_property): # It sets the background to scale when fitting the screen and it loads collidable objects. 
         self.current_background_property = background_property
@@ -88,7 +161,11 @@ class Screen:
     def refresh_background(self): # It refreshes the background by blitting. 
         self.internal_surface.blit(self.background, (0, 0))
 
-    def draw_hearts(self, player): #It draws the player’s health hearts based on their current health. 
+    def draw_waves(self):
+        for wave in self.waves:
+            wave.draw(self.internal_surface)
+
+    def draw_hearts(self, player):
         health_per_heart = 4  # Each heart represents 4 health points
         hearts = player.max_health // health_per_heart
 
@@ -199,11 +276,9 @@ class Screen:
 
                 # Scale the image
                 item_image = pygame.transform.scale(item_image, (new_width, new_height))
-                self.internal_surface.blit(item_image, (x + 20, y + 25))
-                self.font.set_bold(True) 
+                self.internal_surface.blit(item_image, (x + 20, y + 25)) 
                 quantity_text = self.font.render(str(slot["quantity"]), True, (255, 255, 255))
                 self.internal_surface.blit(quantity_text, (x + slot_size + 7, y + slot_size + 12))
-                self.font.set_bold(False)
 
 
     def draw_cooldown_bar(self, cooldown_ratio): # It will draw a cooldown bar for the cooldown timer on various actions. 
@@ -221,7 +296,7 @@ class Screen:
 
     def handle_crafting_click(self, player, text): #The method deals with the crafting interactions and updates the inventory as clicked.
         if "spear" in text:
-            player.craft_item("spear", {"wood": 1, "rock": 1, "vine": 1})
+            player.craft_item("spear", {"wood": 3, "rock": 3, "vine": 3})
             player.spritesheet_path = "characters/character_spear.png"
             player.load_sprites()
             player.image = player.sprites[player.current_direction][0]  # Update to the new image
@@ -230,13 +305,13 @@ class Screen:
             if player.is_inventory_full():
                 self.add_dialog_box("Can't craft torch, inventory is too full.")
             else:
-                player.craft_item("torch", {"wood": 1, "vine": 1, "leaf": 1, "coal": 1})
+                player.craft_item("torch", {"wood": 2, "vine": 3, "leaf": 4, "coal": 3})
                 player.add_item("torch", 1)
         elif "pulley" in text:
             if player.is_inventory_full():
                 self.add_dialog_box("Can't craft pulley, inventory is too full.")
             else:
-                player.craft_item("pulley", {"log": 4, "vine": 5})
+                player.craft_item("pulley", {"wood": 4, "vine": 5})
                 player.add_item("pulley", 1)
 
     def wrap_text(self, font, text, max_width): # It will wrap the text in order to ensure it fits within the specified dimensions. 
@@ -306,7 +381,7 @@ class Screen:
 
         # Combine objects and player into a single list
         all_sprites = [(obj.x, obj.y, obj.y * scale_factor_y + obj.height * scale_factor_y, obj.gid) for obj in self.objects]
-        all_sprites.append((player.x, player.y, player.y + player.size, player))
+        all_sprites.append((player.x, player.y, player.y + player.height, player))
 
         # Sort all sprites by their y-coordinate
         all_sprites.sort(key=lambda sprite: sprite[2])
@@ -316,9 +391,9 @@ class Screen:
         for sprite in all_sprites:
             if isinstance(sprite[3], HumanPlayer):
                 sprite[3].draw(self.internal_surface)
-                pygame.draw.circle(self.internal_surface, Color.RED, (sprite[3].x, sprite[3].y), 5)
-                player_rect = pygame.Rect(player.x + 20, player.y + 40, player.size - 40, player.size - 40)
-                pygame.draw.rect(self.internal_surface, (255, 0, 0), player_rect, 2)
+                #pygame.draw.circle(self.internal_surface, Color.RED, (sprite[3].x, sprite[3].y), 5)
+                player_rect = player.get_hitbox()
+                #pygame.draw.rect(self.internal_surface, (255, 0, 0), player_rect, 2)
             else:
                 tile = tmx_data.get_tile_image_by_gid(sprite[3])
                 if tile:
@@ -327,8 +402,16 @@ class Screen:
                     self.internal_surface.blit(transformed_surface, (0, 0))
                     self.background_surface.fill((0, 0, 0, 0))  # fill with fully transparent color
 
-        self.draw_collidable_objects()
+        #self.draw_collidable_objects()
         self.draw_translucent_box()
+
+        # Apply cave darkness effect if in cave
+        if self.current_background_property == "CAVE":
+            if player.has_item_in_inventory("torch"):
+                self.apply_light_effect(player)
+            else:
+                self.apply_darkness_effect(player)
+
         self.draw_bars(player)
         self.draw_hearts(player)
 
@@ -337,6 +420,8 @@ class Screen:
 
         if cooldown_ratio < 1:
             self.draw_cooldown_bar(cooldown_ratio)
+
+        self.draw_waves()
 
         # Clear dialog boxes before updating the screen
         self.dialog_boxes = []
@@ -350,12 +435,6 @@ class Screen:
         for i, (message, _, _) in enumerate(self.dialog_messages):
             self.draw_dialog_box(message, i + len(crafting_prompts))
 
-        # Apply cave darkness effect if in cave
-        if self.current_background_property == "CAVE":
-            if player.has_item_in_inventory("torch"):
-                self.apply_light_effect(player)
-            else:
-                self.apply_darkness_effect(player)
 
         # Calculate the scaling factors
         scale_x = self.window_width / self.internal_width
@@ -383,21 +462,18 @@ class Screen:
 
 
 
-
-
-
-    def apply_darkness_effect(self, player): # It displays a darkness effect on the screen and it is in the cave. 
+    def apply_darkness_effect(self, player):
         darkness_surface = pygame.Surface((self.internal_width, self.internal_height), pygame.SRCALPHA)
         darkness_surface.fill((0, 0, 0, 255))  # Full opacity
 
-        pygame.draw.circle(darkness_surface, (0, 0, 0, 0), (player.x + player.size // 2, player.y + player.size // 2), 30)
+        pygame.draw.circle(darkness_surface, (0, 0, 0, 0), (player.x + player.width // 2, player.y + player.height // 2), 30)
         self.internal_surface.blit(darkness_surface, (0, 0))
 
     def apply_light_effect(self, player): # It applies a light effect around the player when the torch is used. 
         light_surface = pygame.Surface((self.internal_width, self.internal_height), pygame.SRCALPHA)
         light_surface.fill((0, 0, 0, 200))  # Adjust the alpha to make it almost pitch black
 
-        pygame.draw.circle(light_surface, (0, 0, 0, 0), (player.x + player.size // 2, player.y + player.size // 2), 300)
+        pygame.draw.circle(light_surface, (0, 0, 0, 0), (player.x + player.width // 2, player.y + player.height // 2), 300)
         self.internal_surface.blit(light_surface, (0, 0))
     
     def add_dialog_box(self, message, duration=5): # This will add a dialogue message to the screen and it is displayed for a specific amount of time. 
