@@ -1,3 +1,10 @@
+"""
+File Name: main.py
+Project Name: Choose Your Own Adventure Game: Stranded Survival: Island Escape
+Team Members: Bhargav, Suchit, Derek
+Date: 5/31/24
+Task Description: This file runs the code in order for the game to play.
+"""
 import sys
 import random
 import pygame
@@ -10,7 +17,7 @@ speed = 6
 collection_cooldown = 5000  # 5000 milliseconds = 5 seconds
 last_collection_time = -5000
 
-def play_game(screen, player):
+def play_game(screen, player): #Includes the main game loop, events, player movement, item collection, background transitions, and the screen updates. 
     global last_collection_time
 
     game_over = False
@@ -209,7 +216,7 @@ def play_game(screen, player):
         screen.update_screen(player, inventory_open, cooldown_ratio, crafting_prompts)
 
 
-def handle_collisions(player, collidables):
+def handle_collisions(player, collidables): # The function deals with collisions with the player and objects in the game
     player_rect = pygame.Rect(player.x + 20, player.y + 40, player.size - 40, player.size - 40)
     for collidable in collidables:
         if 'Collidables' in collidable.layer:

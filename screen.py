@@ -1,3 +1,10 @@
+"""
+File Name: screen.py
+Project Name: Choose Your Own Adventure Game: Stranded Survival: Island Escape
+Team Members: Bhargav, Suchit, Derek
+Date: 5/31/24
+Task Description: Manages the visual display by drawing the various GUI/UI features. 
+"""
 # screen.py
 import pygame
 from backgrounds import Backgrounds
@@ -5,12 +12,12 @@ from player import HumanPlayer
 from color import Color
 import time
 
-class CollisionObject:
+class CollisionObject: #Initializes the collidable object with rectangles and defines the position & size. 
     def __init__(self, x, y, width, height):
         self.rect = pygame.Rect(x, y, width, height)
 
 class Screen:
-    def __init__(self, internal_width=800, internal_height=450, background_property="BEACH", font_type="monospace", font_size=18, clock_tick=30):
+    def __init__(self, internal_width=800, internal_height=450, background_property="BEACH", font_type="monospace", font_size=18, clock_tick=30): #This initializes the screen size, surfaces, font, sprite sheets, images, and clock. 
         pygame.display.init()
         self.internal_width = internal_width
         self.internal_height = internal_height
@@ -65,7 +72,7 @@ class Screen:
         self.inventory_icon_rect = self.inventory_icon.get_rect(center=self.main_icon_rect.center)
         self.show_inventory_icon = False
 
-    def set_background(self, background_property):
+    def set_background(self, background_property): # It sets the background to scale when fitting the screen and it loads collidable objects. 
         self.current_background_property = background_property
         self.background, self.objects, tmx_data = getattr(self.backgrounds, background_property)()
         self.current_background_path = f"backgrounds/{background_property}.tmx"
@@ -74,14 +81,14 @@ class Screen:
         # Load collidable objects for the new background
         self.collidable_objects = self.backgrounds.get_collidable_objects(tmx_data)
 
-    def handle_resize(self, event):
+    def handle_resize(self, event): # Adjusts the window resize values to fit the screen dimensions. 
         self.window_width, self.window_height = event.size
         self.screen = pygame.display.set_mode((self.window_width, self.window_height), pygame.RESIZABLE)
 
-    def refresh_background(self):
+    def refresh_background(self): # It refreshes the background by blitting. 
         self.internal_surface.blit(self.background, (0, 0))
 
-    def draw_hearts(self, player):
+    def draw_hearts(self, player): #It draws the player’s health hearts based on their current health. 
         health_per_heart = 4  # Each heart represents 4 health points
         hearts = player.max_health // health_per_heart
 
@@ -107,7 +114,7 @@ class Screen:
             scaled_heart_image = pygame.transform.scale(heart_image, (scaled_heart_width, self.scaled_heart_height))
             self.internal_surface.blit(scaled_heart_image, (10 + i * (scaled_heart_width + 5), self.internal_height - self.scaled_heart_height - 10))
 
-    def draw_bars(self, player):
+    def draw_bars(self, player): # It draws the player’s hunger and temperature hearts based on their current health. 
         hunger_ratio = player.hunger / player.max_hunger
         temperature_ratio = player.temperature / player.max_temperature
 
@@ -132,10 +139,11 @@ class Screen:
         self.internal_surface.blit(self.temperature_icon, (15, self.internal_height - self.scaled_heart_height - 2 * scaled_bar_height + 17))
         self.internal_surface.blit(scaled_temperature_bar, (58, self.internal_height - self.scaled_heart_height - 2 * scaled_bar_height + 9))
 
-    def draw_player(self, player):
+    def draw_player(self, player): # Draws the player sprite.
         player.draw(self.internal_surface)
 
-    def draw_collidable_objects(self):
+    def draw_collidable_objects(self): # Draws a translucent box that will display for certain dialogue.
+
         for obj in self.collidable_objects:
             pygame.draw.rect(self.internal_surface, (255, 0, 0), obj, 2)  # Draw the collidables in red
 
@@ -156,7 +164,7 @@ class Screen:
         # Blit the translucent box onto the internal surface
         self.internal_surface.blit(translucent_box, (box_x, box_y))
 
-    def draw_inventory(self, player):
+    def draw_inventory(self, player): # This function will draw the players inventory and scale it accordingly. 
         # Draw the inventory on the screen and store item positions.
         scaled_inventory = pygame.transform.scale(self.inventory_image, (250, 250))
         inventory_x = (self.internal_width - scaled_inventory.get_width()) // 2
@@ -198,7 +206,7 @@ class Screen:
                 self.font.set_bold(False)
 
 
-    def draw_cooldown_bar(self, cooldown_ratio):
+    def draw_cooldown_bar(self, cooldown_ratio): # It will draw a cooldown bar for the cooldown timer on various actions. 
         bar_width = 100
         bar_height = 20
         bar_x = self.internal_width - bar_width - 20
@@ -211,7 +219,7 @@ class Screen:
         cooldown_width = int(bar_width * cooldown_ratio)
         pygame.draw.rect(self.internal_surface, (200, 200, 200), (bar_x, bar_y, cooldown_width, bar_height))
 
-    def handle_crafting_click(self, player, text):
+    def handle_crafting_click(self, player, text): #The method deals with the crafting interactions and updates the inventory as clicked.
         if "spear" in text:
             player.craft_item("spear", {"wood": 1, "rock": 1, "vine": 1})
             player.spritesheet_path = "characters/character_spear.png"
@@ -231,7 +239,7 @@ class Screen:
                 player.craft_item("pulley", {"log": 4, "vine": 5})
                 player.add_item("pulley", 1)
 
-    def wrap_text(self, font, text, max_width):
+    def wrap_text(self, font, text, max_width): # It will wrap the text in order to ensure it fits within the specified dimensions. 
         words = text.split(' ')
         lines = []
         current_line = []
@@ -251,7 +259,7 @@ class Screen:
         return lines
 
     # Update the draw_dialog_box method
-    def draw_dialog_box(self, text, index=0):
+    def draw_dialog_box(self, text, index=0): # It will draw the box where the dialogue is displayed. 
         box_width = 250
         box_height = 50
         margin = 10
@@ -289,7 +297,8 @@ class Screen:
             self.dialog_boxes = []
         self.dialog_boxes.append((pygame.Rect(box_x, box_y, box_width, box_height), text))
 
-    def update_screen(self, player, inventory_open, cooldown_ratio=1, crafting_prompts=[]):
+    def update_screen(self, player, inventory_open, cooldown_ratio=1, crafting_prompts=[]): # It updates the screen by drawing all of the elements which includes the background, player, collision objects, UI, and aspect ratio adjustments. 
+
         self.refresh_background()
 
         # Calculate the scaling factors
@@ -377,21 +386,22 @@ class Screen:
 
 
 
-    def apply_darkness_effect(self, player):
+    def apply_darkness_effect(self, player): # It displays a darkness effect on the screen and it is in the cave. 
         darkness_surface = pygame.Surface((self.internal_width, self.internal_height), pygame.SRCALPHA)
         darkness_surface.fill((0, 0, 0, 255))  # Full opacity
 
         pygame.draw.circle(darkness_surface, (0, 0, 0, 0), (player.x + player.size // 2, player.y + player.size // 2), 30)
         self.internal_surface.blit(darkness_surface, (0, 0))
 
-    def apply_light_effect(self, player):
+    def apply_light_effect(self, player): # It applies a light effect around the player when the torch is used. 
         light_surface = pygame.Surface((self.internal_width, self.internal_height), pygame.SRCALPHA)
         light_surface.fill((0, 0, 0, 200))  # Adjust the alpha to make it almost pitch black
 
         pygame.draw.circle(light_surface, (0, 0, 0, 0), (player.x + player.size // 2, player.y + player.size // 2), 300)
         self.internal_surface.blit(light_surface, (0, 0))
     
-    def add_dialog_box(self, message, duration=5):
+    def add_dialog_box(self, message, duration=5): # This will add a dialogue message to the screen and it is displayed for a specific amount of time. 
+
         if not hasattr(self, 'dialog_messages'):
             self.dialog_messages = []
         current_time = time.time()

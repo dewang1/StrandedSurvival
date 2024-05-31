@@ -1,16 +1,23 @@
+"""
+File Name: player.py
+Project Name: Choose Your Own Adventure Game: Stranded Survival: Island Escape
+Team Members: Bhargav, Suchit, Derek
+Date: 5/31/24
+Task Description: Specific game entities and the various properties are defined here. 
+"""
 import pygame
 from PIL import Image
 from characters import Characters  # Ensure this import is correct
 
 class Player:
-    def __init__(self, x, y, size, image):
+    def __init__(self, x, y, size, image): # This initializes the players position, size, and image. 
         self.x = x
         self.y = y
         self.size = size
         self.image = image  # This should be a pygame.Surface already
 
 class HumanPlayer(Player):
-    def __init__(self, x, y, max_health, health, max_hunger, hunger, max_temperature, temperature):
+    def __init__(self, x, y, max_health, health, max_hunger, hunger, max_temperature, temperature): # It initializes the human player with health, hunger, temperature, and inventory, sprites, and animations. 
         self.spritesheet_path = Characters.PLAYER
         self.load_sprites()
         super().__init__(x, y, size=64, image=self.sprites['down'][0])
@@ -35,7 +42,7 @@ class HumanPlayer(Player):
         # Initialize spear flag
         self.has_spear = False
 
-    def load_sprites(self):
+    def load_sprites(self): # It loads all of the sprites and stores them in their own dictionaries in their respective directions. 
         """ Load all sprites from the spritesheet and store them in a dictionary. """
         sprite_width, sprite_height = 64, 64  # Adjust if different
         self.sprites = {'down': [], 'left': [], 'right': [], 'up': []}
@@ -54,7 +61,7 @@ class HumanPlayer(Player):
                 sprite_surface = pygame.image.fromstring(sprite.tobytes(), sprite.size, sprite.mode).convert_alpha()
                 self.sprites[direction].append(sprite_surface)
 
-    def move(self, dx, dy):
+    def move(self, dx, dy): # Moves the sprite based on the direction. 
         """ Move player and update sprite based on direction. """
         moved = False
         if dy < 0 and dx == 0:
@@ -112,7 +119,7 @@ class HumanPlayer(Player):
             self.movement = 'stopped'
             self.reset_sprite()
 
-    def update_sprite(self, direction):
+    def update_sprite(self, direction): # Updates the frame after every animation.
         """ Update sprite to next frame in the current direction or change direction. """
         if self.current_direction != direction:
             self.current_direction = direction
@@ -124,16 +131,16 @@ class HumanPlayer(Player):
             self.frame_tick += 1
         self.image = self.sprites[direction][self.frame - 1]
 
-    def reset_sprite(self):
+    def reset_sprite(self): # This will reset the sprite to the first frame. 
         """ Reset sprite to the first frame of the current direction. """
         self.image = self.still_sprites[self.current_direction]
         self.frame_tick = 0
 
-    def draw(self, screen):
+    def draw(self, screen): # It draws the current sprite on the screen given the player’s position 
         """ Draw the current sprite at the player's position. """
         screen.blit(self.image, (self.x, self.y))
 
-    def add_item(self, item, quantity):
+    def add_item(self, item, quantity): # It will add an item to the player’s inventory and can stack.  
         """ Add an item to the inventory. """
         max_stack_size = 30
 
@@ -161,12 +168,12 @@ class HumanPlayer(Player):
         # If there is remaining quantity and no slots available, it cannot be added
         return False
 
-    def clear_inventory_slot(self, slot_index):
+    def clear_inventory_slot(self, slot_index): # It will clear a specific inventory slot. 
         """ Clear the specified inventory slot. """
         if 0 <= slot_index < len(self.inventory):
             self.inventory[slot_index] = {"item": None, "quantity": 0}
 
-    def check_crafting_requirements(self):
+    def check_crafting_requirements(self): # It checks if the player has the required items to crafts specific items.
         spear_requirements = {"wood": 1, "rock": 1, "vine": 1}
         torch_requirements = {"wood": 1, "vine": 1, "leaf": 1, "coal": 1}
         pulley_requirements = {"wood": 4, "vine": 5}
@@ -189,7 +196,7 @@ class HumanPlayer(Player):
         return can_craft_spear, can_craft_torch, can_craft_pulley
 
 
-    def craft_item(player, crafted_item, required_items):
+    def craft_item(player, crafted_item, required_items): # It crafts an item by removing the required amount of quantities in the inventory. 
         for req_item, req_quantity in required_items.items():
             for slot in player.inventory:
                 if slot["item"] == req_item and slot["quantity"] > 0:
@@ -199,11 +206,11 @@ class HumanPlayer(Player):
                         slot["quantity"] = 0
                     break
 
-    def has_item_in_inventory(self, item_name):
+    def has_item_in_inventory(self, item_name): # It checks if there is a specific item present in the players inventory. 
         """ Check if the player has an item in their inventory. """
         return any(slot["item"] == item_name for slot in self.inventory)
     
-    def is_inventory_full(self):
+    def is_inventory_full(self): # This checks if the player’s inventory is full.
         return all(slot["item"] is not None for slot in self.inventory)
 
 class Snake(Player):
