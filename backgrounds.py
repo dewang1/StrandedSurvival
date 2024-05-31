@@ -1,3 +1,4 @@
+# backgrounds.py
 from pytmx import load_pygame
 import pygame
 
@@ -22,15 +23,25 @@ class Backgrounds:
             for obj in layer:
                 tile = tmx_data.get_tile_image_by_gid(obj.gid)
                 if tile:
-                    surface.blit(tile, (obj.x, obj.y ))  
+                    surface.blit(tile, (obj.x, obj.y)) 
 
+    def get_collidable_objects(self, tmx_data):
+        collidables = []
+        for layer in tmx_data.objectgroups:
+            if 'Collidables' in layer.name:
+                for obj in layer:
+                    collidable_rect = pygame.Rect(obj.x, obj.y, obj.width, obj.height)
+                    collidables.append(collidable_rect)
+                    print(f"Loaded collidable object at {collidable_rect}")  # Debug print
+        return collidables
+    
     def get_tmx_background(self, tmx_path):
         tmx_data = self.load_tmx(tmx_path)
         width = tmx_data.tilewidth * tmx_data.width
         height = tmx_data.tileheight * tmx_data.height
         background_surface = pygame.Surface((width, height))
         self.render_tmx(tmx_data, background_surface)
-        return background_surface
+        return background_surface, tmx_data  # Return both surface and tmx data
 
     def JUNGLE(self):
         return self.get_tmx_background("backgrounds/Jungle.tmx")

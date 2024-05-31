@@ -1,7 +1,12 @@
+# screen.py
 import pygame
 from backgrounds import Backgrounds
 from player import HumanPlayer
 from color import Color
+
+class CollisionObject:
+    def __init__(self, x, y, width, height):
+        self.rect = pygame.Rect(x, y, width, height)
 
 class Screen:
     def __init__(self, internal_width=800, internal_height=450, background_property="JUNGLE", font_type="monospace", font_size=35, clock_tick=30):
@@ -17,6 +22,7 @@ class Screen:
         self.current_background_property = background_property
         self.window_width = internal_width
         self.window_height = internal_height
+        self.collidable_objects = []  # List to store collidable objects
 
         # Load heart spritesheet
         self.hearts_spritesheet = pygame.image.load("UI/Health_04_Heart_Red_Clear.png").convert_alpha()
@@ -44,8 +50,11 @@ class Screen:
 
     def set_background(self, background_property):
         self.current_background_property = background_property
-        self.background = getattr(self.backgrounds, background_property)()
+        self.background, tmx_data = getattr(self.backgrounds, background_property)()
         self.background = pygame.transform.scale(self.background, (self.internal_width, self.internal_height))
+
+        # Load collidable objects for the new background
+        self.collidable_objects = self.backgrounds.get_collidable_objects(tmx_data)
 
     def handle_resize(self, event):
         self.window_width, self.window_height = event.size
@@ -107,6 +116,10 @@ class Screen:
 
     def draw_player(self, player):
         player.draw(self.internal_surface)
+
+    def draw_collidable_objects(self):
+        for obj in self.collidable_objects:
+            pygame.draw.rect(self.internal_surface, (255, 0, 0), obj, 2)  # Draw the collidables in red
 
     def update_screen(self, player):
         self.refresh_background()
