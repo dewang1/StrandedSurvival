@@ -60,6 +60,8 @@
         },
         "backgrounds/JUNGLE.tmx": {
             "expandedObjectLayers": [
+                11,
+                10,
                 9
             ],
             "scale": 2,
@@ -229,9 +231,10 @@
     ],
     "project": "adventureGame.tiled-project",
     "recentFiles": [
+        "backgrounds/Pond.tmx",
+        "backgrounds/JUNGLE.tmx",
         "backgrounds/MOUNTAIN.tmx",
         "backgrounds/Cave.tmx",
-        "backgrounds/Pond.tmx",
         "tiles/10_dirt.tsx",
         "tiles/9_beach.tsx",
         "tiles/trees.tsx",
@@ -239,7 +242,6 @@
         "backgrounds/Mountain.tmx",
         "tiles/8_cave.tsx",
         "backgrounds/Beach.tmx",
-        "backgrounds/JUNGLE.tmx",
         "backgrounds/Jungle.tmx"
     ],
     "tileset.lastUsedFormat": "tsx",
