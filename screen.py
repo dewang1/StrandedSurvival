@@ -9,6 +9,8 @@ class Screen:
         self.internal_width = internal_width
         self.internal_height = internal_height
         self.internal_surface = pygame.Surface((internal_width, internal_height))
+        self.background_surface = pygame.Surface((512, 288), pygame.SRCALPHA)
+        self.background_surface.fill((0, 0, 0, 0))  # fill with fully transparent color
         self.screen = pygame.display.set_mode((internal_width, internal_height), pygame.RESIZABLE)
         self.backgrounds = Backgrounds()
         self.font = pygame.font.SysFont(font_type, font_size)
@@ -44,7 +46,8 @@ class Screen:
 
     def set_background(self, background_property):
         self.current_background_property = background_property
-        self.background = getattr(self.backgrounds, background_property)()
+        self.background, self.objects = getattr(self.backgrounds, background_property)()
+        self.current_background_path = f"backgrounds/{background_property}.tmx"
         self.background = pygame.transform.scale(self.background, (self.internal_width, self.internal_height))
 
     def handle_resize(self, event):
@@ -105,12 +108,33 @@ class Screen:
         self.internal_surface.blit(self.temperature_icon, (15, self.internal_height - self.scaled_heart_height - 2 * scaled_bar_height + 17))
         self.internal_surface.blit(scaled_temperature_bar, (58, self.internal_height - self.scaled_heart_height - 2 * scaled_bar_height + 9))
 
-    def draw_player(self, player):
-        player.draw(self.internal_surface)
-
     def update_screen(self, player):
         self.refresh_background()
-        self.draw_player(player)
+
+        # Calculate the scaling factors
+        scale_factor_y = self.internal_height / 288
+
+        # Combine objects and player into a single list
+        all_sprites = [(obj.x, obj.y, obj.y * scale_factor_y  + obj.height * scale_factor_y, obj.gid) for obj in self.objects]
+        all_sprites.append((player.x, player.y, player.y + player.size, player))
+
+        # Sort all sprites by their y-coordinate
+        all_sprites.sort(key=lambda sprite: sprite[2])
+
+
+        # Draw all sprites in sorted order
+        tmx_data = self.backgrounds.load_tmx(self.current_background_path)
+        for sprite in all_sprites:
+            if isinstance(sprite[3], HumanPlayer):
+                sprite[3].draw(self.internal_surface)
+            else:
+                tile = tmx_data.get_tile_image_by_gid(sprite[3])
+                if tile:
+                    self.background_surface.blit(tile, (sprite[0], sprite[1]))
+                    transformed_surface = pygame.transform.scale(self.background_surface, (self.internal_width, self.internal_height))
+                    self.internal_surface.blit(transformed_surface, (0, 0))
+                    self.background_surface.fill((0, 0, 0, 0))  # fill with fully transparent color
+
         self.draw_bars(player)
         self.draw_hearts(player)
 
@@ -137,3 +161,4 @@ class Screen:
         self.screen.blit(scaled_surface, (offset_x, offset_y))
         self.clock.tick(self.clock_tick)
         pygame.display.update()
+
