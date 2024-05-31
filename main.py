@@ -1,14 +1,30 @@
 import sys
+import random
 import pygame
-from player import HumanPlayer
+from player import HumanPlayer, Snake
 from screen import Screen
 
 speed = 6
+
+def generate_random_snakes(screen, num_snakes):
+    """ Generate a list of snakes with random positions within the screen bounds. """
+    snakes = []
+    for _ in range(num_snakes):
+        x = random.randint(0, screen.internal_width - 64)  # Assuming snake size is 64
+        y = random.randint(0, screen.internal_height - 64)
+        venomous = random.choice([True, False])
+        length = random.randint(3, 7)
+        snake = Snake(x, y, venomous, length)
+        snakes.append(snake)
+    return snakes
 
 def play_game(screen, player):
     game_over = False
     current_background = "JUNGLE"  # Starting background
     last_background = None  # To prevent immediate re-triggering of background transitions
+
+    # Generate 2-3 snakes for the POND map
+    snakes = generate_random_snakes(screen, random.randint(2, 3))
 
     while not game_over:
         for event in pygame.event.get():
@@ -60,6 +76,7 @@ def play_game(screen, player):
                 current_background = "POND"
                 player.x = screen.internal_width - player.size - 1
                 last_background = "POND"
+                snakes = generate_random_snakes(screen, random.randint(2, 3))  # Regenerate snakes for POND
             elif player.y <= 0 and last_background != "MOUNTAIN":
                 screen.set_background("MOUNTAIN")
                 current_background = "MOUNTAIN"
@@ -98,6 +115,10 @@ def play_game(screen, player):
                 current_background = "JUNGLE"
                 player.x = 1
                 last_background = "JUNGLE"
+            # Move and animate snakes in the POND
+            for snake in snakes:
+                snake.slither(random.choice([-1, 1]) * 2, 0)  # Simple random movement for example
+                snake.draw(screen.screen)
 
         elif current_background == "OCEAN":
             if player.x <= 0 and last_background != "BEACH":
