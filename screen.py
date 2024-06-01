@@ -94,6 +94,7 @@ class Screen:
         self.show_inventory_icon = False
         
     def win_screen(self):
+        """Display the win screen when the player wins the game."""
         # Fill the screen with a black background
         self.internal_surface.fill((0, 0, 0))
         
@@ -120,6 +121,7 @@ class Screen:
         pygame.time.wait(3000)
 
     def death_screen(self):
+        """Display the death screen when the player dies."""
         # Fill the screen with a black background
         self.internal_surface.fill((0, 0, 0))
         
@@ -230,6 +232,7 @@ class Screen:
             pygame.draw.rect(self.internal_surface, (255, 0, 0), obj, 2)  # Draw the collidables in red
 
     def draw_translucent_box(self):
+        """Draw a translucent box on the screen for status bar UI."""
         # Define the dimensions and position of the box
         box_width = 240
         box_height = 140
@@ -415,7 +418,7 @@ class Screen:
                     transformed_surface = pygame.transform.scale(self.background_surface, (self.internal_width, self.internal_height))
                     self.internal_surface.blit(transformed_surface, (0, 0))
                     self.background_surface.fill((0, 0, 0, 0))  # fill with fully transparent color
-
+        self.draw_waves()
         #self.draw_collidable_objects()
         self.draw_translucent_box()
 
@@ -438,7 +441,7 @@ class Screen:
         if cooldown_ratio < 1:
             self.draw_cooldown_bar(cooldown_ratio)
 
-        self.draw_waves()
+        
 
         # Clear dialog boxes before updating the screen
         self.dialog_boxes = []

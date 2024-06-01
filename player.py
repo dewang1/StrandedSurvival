@@ -286,7 +286,7 @@ class HumanPlayer(Player):
 class Raft(HumanPlayer):
     """ Raft class for player as a raft."""
     def __init__(self, x, y, max_health, health, max_hunger, hunger, max_temperature, temperature):
-        # Call the superclass constructor with the raft image
+        """ Initialize the Raft object with the given attributes. """
         super().__init__(x, y, max_health, health, max_hunger, hunger, max_temperature, temperature, 163, 224)
         self.spritesheet_path = Characters.RAFT
         self.load_sprites()

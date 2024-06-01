@@ -2,7 +2,7 @@
 Names: Derek Wang, Suchit Basineni, Bhargav Yerramsetty
 Date: 5/31/2024
 OceanWaves.py
-Description: This file contains the OceanWaves class, which is responsible for rendering ocean waves on the screen.
+Description: This file contains the OceanWaves class, which is responsible for defining ocean waves. Includes rendering, movement, and hitboxes
 """
 import pygame
 import random

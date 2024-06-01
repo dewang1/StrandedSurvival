@@ -1,21 +1,10 @@
-"""
-File Name: adventureGame.tiled-session
-Project Name: Choose Your Own Adventure Game: Stranded Survival: Island Escape
-Team Members: Bhargav, Suchit, Derek
-Date: 5/31/24
-Task Description: Configuration file for Tiled Map Editor
-"""
 {
-    "Map/SizeTest": {
-        "height": 4300,
-        "width": 2
-    },
-    "activeFile": "backgrounds/JUNGLE.tmx",
+    "activeFile": "backgrounds/BEACH.tmx",
     "expandedProjectPaths": [
-        ".",
         "backgrounds",
-        "tiles",
-        "map"
+        ".",
+        "map",
+        "tiles"
     ],
     "fileStates": {
         "9_beach.tsx": {
@@ -32,10 +21,10 @@ Task Description: Configuration file for Tiled Map Editor
         },
         "backgrounds/BEACH.tmx": {
             "scale": 2,
-            "selectedLayer": 1,
+            "selectedLayer": 2,
             "viewCenter": {
-                "x": 255.75,
-                "y": 144.25
+                "x": 168.25,
+                "y": 169.75
             }
         },
         "backgrounds/Beach.tmx": {
@@ -237,12 +226,6 @@ Task Description: Configuration file for Tiled Map Editor
             "scaleInEditor": 0.33
         }
     },
-    "last.imagePath": "C:/Users/Jason/Documents/GitHub/2025_Game_5/tiles",
-    "map.height": 18,
-    "map.lastUsedFormat": "tmx",
-    "map.tileHeight": 16,
-    "map.tileWidth": 16,
-    "map.width": 32,
     "openFiles": [
         "tiles/10_dirt.tsx",
         "tiles/9_beach.tsx",
@@ -258,29 +241,21 @@ Task Description: Configuration file for Tiled Map Editor
         "backgrounds/POND.tmx",
         "backgrounds/CAVE.tmx",
         "backgrounds/Cave.tmx",
-        "tiles/rock.tsx",
         "backgrounds/MOUNTAIN.tmx",
         "backgrounds/BEACH.tmx"
     ],
-    "project": "adventureGame.tiled-project",
     "recentFiles": [
-        "backgrounds/Pond.tmx",
         "tiles/10_dirt.tsx",
         "tiles/9_beach.tsx",
         "tiles/trees.tsx",
         "tiles/3_plants.tsx",
+        "backgrounds/Pond.tmx",
         "backgrounds/Mountain.tmx",
         "tiles/8_cave.tsx",
         "backgrounds/Beach.tmx",
-        "backgrounds/BEACH.tmx",
-        "backgrounds/MOUNTAIN.tmx",
-        "tiles/rock.tsx",
-        "backgrounds/Cave.tmx"
-    ],
-    "tileset.lastUsedFormat": "tsx",
-    "tileset.tileSize": {
-        "height": 16,
-        "width": 16
-    },
-    "tileset.type": 1
+        "backgrounds/JUNGLE.tmx",
+        "tiles/palm.tsx",
+        "backgrounds/OCEAN.tmx",
+        "backgrounds/POND.tmx"
+    ]
 }
