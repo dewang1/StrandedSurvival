@@ -376,5 +376,5 @@ def handle_collisions(player, collidables):
 if __name__ == "__main__":
     pygame.init()
     screen = Screen()  # Default starts with BEACH background
-    player = HumanPlayer(screen.internal_width / 2, screen.internal_height - 100, 20, 20, 20, 2, 20, 20)
+    player = HumanPlayer(screen.internal_width / 2, screen.internal_height - 100, 20, 20, 20, 20, 20, 20)
     play_game(screen, player)
