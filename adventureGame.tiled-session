@@ -1,3 +1,10 @@
+"""
+File Name: adventureGame.tiled-session
+Project Name: Choose Your Own Adventure Game: Stranded Survival: Island Escape
+Team Members: Bhargav, Suchit, Derek
+Date: 5/31/24
+Task Description: Configuration file for Tiled Map Editor
+"""
 {
     "Map/SizeTest": {
         "height": 4300,

@@ -49,7 +49,7 @@ class HumanPlayer(Player):
         # Initialize spear flag
         self.has_spear = False
 
-    def load_sprites(self):
+    def load_sprites(self): # It loads all of the sprites and stores them in their own dictionaries in their respective directions. 
         """ Load all sprites from the spritesheet and store them in a dictionary. """
         sprite_width, sprite_height = 64, 64  # Adjust if different
         self.sprites = {'down': [], 'left': [], 'right': [], 'up': []}
@@ -69,7 +69,7 @@ class HumanPlayer(Player):
                 sprite_surface = pygame.image.fromstring(sprite.tobytes(), sprite.size, sprite.mode).convert_alpha()
                 self.sprites[direction].append(sprite_surface)
 
-    def move(self, dx, dy):
+    def move(self, dx, dy): # Moves the sprite based on the direction. 
         """ Move player and update sprite based on direction. """
         moved = False
         if dy < 0 and dx == 0:
@@ -129,7 +129,7 @@ class HumanPlayer(Player):
             self.movement = 'stopped'
             self.reset_sprite()
 
-    def update_sprite(self, direction):
+    def update_sprite(self, direction): # Updates the frame after every animation.
         """ Update sprite to next frame in the current direction or change direction. """
         if self.current_direction != direction:
             self.current_direction = direction
@@ -141,12 +141,12 @@ class HumanPlayer(Player):
             self.frame_tick += 1
         self.image = self.sprites[direction][self.frame - 1]
 
-    def reset_sprite(self):
+    def reset_sprite(self): # This will reset the sprite to the first frame. 
         """ Reset sprite to the first frame of the current direction. """
         self.image = self.still_sprites[self.current_direction]
         self.frame_tick = 0
 
-    def draw(self, screen):
+    def draw(self, screen): # It draws the current sprite on the screen given the player’s position 
         """ Draw the current sprite at the player's position. """
         screen.blit(self.image, (self.x, self.y))
 
@@ -182,7 +182,7 @@ class HumanPlayer(Player):
         # If there is remaining quantity and no slots available, it cannot be added
         return False
 
-    def clear_inventory_slot(self, slot_index):
+    def clear_inventory_slot(self, slot_index): # It will clear a specific inventory slot. 
         """ Clear the specified inventory slot. """
         if 0 <= slot_index < len(self.inventory):
             self.inventory[slot_index] = {"item": None, "quantity": 0}
@@ -225,7 +225,7 @@ class HumanPlayer(Player):
                         slot["quantity"] = 0
                     break
 
-    def has_item_in_inventory(self, item_name):
+    def has_item_in_inventory(self, item_name): # It checks if there is a specific item present in the players inventory. 
         """ Check if the player has an item in their inventory. """
         return any(slot["item"] == item_name for slot in self.inventory)
     

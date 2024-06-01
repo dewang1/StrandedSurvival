@@ -11,7 +11,7 @@ from player import HumanPlayer
 from color import Color
 import time
 
-class CollisionObject:
+class CollisionObject: #Initializes the collidable object with rectangles and defines the position & size. 
     def __init__(self, x, y, width, height):
         # Initialize a rect object for collision detection
         self.rect = pygame.Rect(x, y, width, height)
@@ -145,8 +145,7 @@ class Screen:
         # Wait for a few seconds before exiting or restarting
         pygame.time.wait(3000)
 
-    def set_background(self, background_property):
-        # Load the background and objects for the specified property
+    def set_background(self, background_property): # It sets the background to scale when fitting the screen and it loads collidable objects. 
         self.current_background_property = background_property
         self.background, self.objects, tmx_data = getattr(self.backgrounds, background_property)()
         self.current_background_path = f"backgrounds/{background_property}.tmx"
@@ -155,13 +154,11 @@ class Screen:
         # Load collidable objects for the new background
         self.collidable_objects = self.backgrounds.get_collidable_objects(tmx_data)
 
-    def handle_resize(self, event):
-        # Update the window dimensions
+    def handle_resize(self, event): # Adjusts the window resize values to fit the screen dimensions. 
         self.window_width, self.window_height = event.size
         self.screen = pygame.display.set_mode((self.window_width, self.window_height), pygame.RESIZABLE)
 
-    def refresh_background(self):
-        # Refresh the background by blitting the background image
+    def refresh_background(self): # It refreshes the background by blitting. 
         self.internal_surface.blit(self.background, (0, 0))
 
     def draw_waves(self):
@@ -196,8 +193,7 @@ class Screen:
             scaled_heart_image = pygame.transform.scale(heart_image, (scaled_heart_width, self.scaled_heart_height))
             self.internal_surface.blit(scaled_heart_image, (10 + i * (scaled_heart_width + 5), self.internal_height - self.scaled_heart_height - 10))
 
-    def draw_bars(self, player):
-        # Calculate the hunger and temperature ratios
+    def draw_bars(self, player): # It draws the player’s hunger and temperature hearts based on their current health. 
         hunger_ratio = player.hunger / player.max_hunger
         temperature_ratio = player.temperature / player.max_temperature
 
@@ -250,7 +246,7 @@ class Screen:
         # Blit the translucent box onto the internal surface
         self.internal_surface.blit(translucent_box, (box_x, box_y))
 
-    def draw_inventory(self, player):
+    def draw_inventory(self, player): # This function will draw the players inventory and scale it accordingly. 
         # Draw the inventory on the screen and store item positions.
         scaled_inventory = pygame.transform.scale(self.inventory_image, (250, 250))
         inventory_x = (self.internal_width - scaled_inventory.get_width()) // 2
@@ -290,7 +286,7 @@ class Screen:
                 self.internal_surface.blit(quantity_text, (x + slot_size + 7, y + slot_size + 12))
 
 
-    def draw_cooldown_bar(self, cooldown_ratio):
+    def draw_cooldown_bar(self, cooldown_ratio): # It will draw a cooldown bar for the cooldown timer on various actions. 
         bar_width = 100
         bar_height = 20
         bar_x = self.internal_width - bar_width - 20
@@ -351,7 +347,7 @@ class Screen:
         return lines
 
     # Update the draw_dialog_box method
-    def draw_dialog_box(self, text, index=0):
+    def draw_dialog_box(self, text, index=0): # It will draw the box where the dialogue is displayed. 
         box_width = 250
         box_height = 50
         margin = 10
@@ -389,7 +385,8 @@ class Screen:
             self.dialog_boxes = []
         self.dialog_boxes.append((pygame.Rect(box_x, box_y, box_width, box_height), text))
 
-    def update_screen(self, player, inventory_open, cooldown_ratio=1, crafting_prompts=[]):
+    def update_screen(self, player, inventory_open, cooldown_ratio=1, crafting_prompts=[]): # It updates the screen by drawing all of the elements which includes the background, player, collision objects, UI, and aspect ratio adjustments. 
+
         self.refresh_background()
 
         # Calculate the scaling factors
@@ -502,7 +499,7 @@ class Screen:
         self.internal_surface.blit(light_surface, (0, 0))
     
     def add_dialog_box(self, message, duration=5):
-        # Add a dialog box with a message and duration
+        # Add a dialog box to display a message on screen. It will disappear after a duration
         if not hasattr(self, 'dialog_messages'):
             self.dialog_messages = []
         current_time = time.time()
