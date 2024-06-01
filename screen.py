@@ -146,6 +146,7 @@ class Screen:
         pygame.time.wait(3000)
 
     def set_background(self, background_property):
+        # Load the background and objects for the specified property
         self.current_background_property = background_property
         self.background, self.objects, tmx_data = getattr(self.backgrounds, background_property)()
         self.current_background_path = f"backgrounds/{background_property}.tmx"
@@ -155,17 +156,21 @@ class Screen:
         self.collidable_objects = self.backgrounds.get_collidable_objects(tmx_data)
 
     def handle_resize(self, event):
+        # Update the window dimensions
         self.window_width, self.window_height = event.size
         self.screen = pygame.display.set_mode((self.window_width, self.window_height), pygame.RESIZABLE)
 
     def refresh_background(self):
+        # Refresh the background by blitting the background image
         self.internal_surface.blit(self.background, (0, 0))
 
     def draw_waves(self):
+        # Draw the ocean waves on the screen for OCEAN
         for wave in self.waves:
             wave.draw(self.internal_surface)
 
     def draw_hearts(self, player):
+        # Calculate the number of hearts to draw based on player health
         health_per_heart = 4  # Each heart represents 4 health points
         hearts = player.max_health // health_per_heart
 
@@ -192,12 +197,14 @@ class Screen:
             self.internal_surface.blit(scaled_heart_image, (10 + i * (scaled_heart_width + 5), self.internal_height - self.scaled_heart_height - 10))
 
     def draw_bars(self, player):
+        # Calculate the hunger and temperature ratios
         hunger_ratio = player.hunger / player.max_hunger
         temperature_ratio = player.temperature / player.max_temperature
 
         scaled_bar_width = int(self.bar_width * self.bar_scale_factor)
         scaled_bar_height = int(self.bar_height * self.bar_scale_factor)
 
+        # Crop the bars based on the ratios
         cropped_hunger_bar = self.hunger_bar_image.subsurface(
             (48, 0, hunger_ratio * self.bar_crop_width, self.bar_height)
         )
@@ -205,6 +212,7 @@ class Screen:
             (48, 0, temperature_ratio * self.bar_crop_width, self.bar_height)
         )
 
+        # Scale the bars
         scaled_hunger_bar = pygame.transform.scale(cropped_hunger_bar, (int(hunger_ratio * self.bar_crop_width * self.bar_scale_factor), scaled_bar_height))
         scaled_temperature_bar = pygame.transform.scale(cropped_temperature_bar, (int(temperature_ratio * self.bar_crop_width * self.bar_scale_factor), scaled_bar_height))
 
@@ -217,9 +225,11 @@ class Screen:
         self.internal_surface.blit(scaled_temperature_bar, (58, self.internal_height - self.scaled_heart_height - 2 * scaled_bar_height + 9))
 
     def draw_player(self, player):
+        # Draw the player on the screen
         player.draw(self.internal_surface)
 
     def draw_collidable_objects(self):
+        # Draw the collidable objects on the screen for debugging
         for obj in self.collidable_objects:
             pygame.draw.rect(self.internal_surface, (255, 0, 0), obj, 2)  # Draw the collidables in red
 
@@ -294,26 +304,34 @@ class Screen:
         pygame.draw.rect(self.internal_surface, (200, 200, 200), (bar_x, bar_y, cooldown_width, bar_height))
 
     def handle_crafting_click(self, player, text):
+        # Handle crafting by clicking dialog based on the text
         if "spear" in text:
             player.craft_item("spear", {"wood": 3, "rock": 3, "vine": 3})
+            # Update the player's spritesheet and image to have spear
             player.spritesheet_path = "characters/character_spear.png"
             player.load_sprites()
             player.image = player.sprites[player.current_direction][0]  # Update to the new image
+            # Set the player's has_spear attribute to True
             player.has_spear = True
         elif "torch" in text:
             if player.is_inventory_full():
+                # Add a dialog box to inform the player that the inventory is full
                 self.add_dialog_box("Can't craft torch, inventory is too full.")
             else:
+                # Craft the torch and add it to the player's inventory if inventory not full
                 player.craft_item("torch", {"wood": 2, "vine": 3, "leaf": 4, "coal": 3})
                 player.add_item("torch", 1)
         elif "pulley" in text:
             if player.is_inventory_full():
+                # Add a dialog box to inform the player that the inventory is full
                 self.add_dialog_box("Can't craft pulley, inventory is too full.")
             else:
+                # Craft the pulley and add it to the player's inventory if inventory not full
                 player.craft_item("pulley", {"wood": 4, "vine": 5})
                 player.add_item("pulley", 1)
 
     def wrap_text(self, font, text, max_width):
+        # Wrap text to fit within a specified width
         words = text.split(' ')
         lines = []
         current_line = []
@@ -395,6 +413,7 @@ class Screen:
             else:
                 tile = tmx_data.get_tile_image_by_gid(sprite[3])
                 if tile:
+                    # Draw the tile onto surface and scale correctly
                     self.background_surface.blit(tile, (sprite[0], sprite[1]))
                     transformed_surface = pygame.transform.scale(self.background_surface, (self.internal_width, self.internal_height))
                     self.internal_surface.blit(transformed_surface, (0, 0))
@@ -410,12 +429,15 @@ class Screen:
             else:
                 self.apply_darkness_effect(player)
 
+        # Draw status bars
         self.draw_bars(player)
         self.draw_hearts(player)
 
+        # Draw inventory
         if inventory_open:
             self.draw_inventory(player)
 
+        # Draw cooldown
         if cooldown_ratio < 1:
             self.draw_cooldown_bar(cooldown_ratio)
 
@@ -452,6 +474,7 @@ class Screen:
             offset_x = (self.window_width - scaled_width) // 2
             offset_y = 0
 
+        # Scale the internal surface to fit the window
         scaled_surface = pygame.transform.scale(self.internal_surface, (scaled_width, scaled_height))
         self.screen.fill((0, 0, 0))  # Fill with black
         self.screen.blit(scaled_surface, (offset_x, offset_y))
@@ -461,20 +484,25 @@ class Screen:
 
 
     def apply_darkness_effect(self, player):
+        # Apply darkness effect in the cave
         darkness_surface = pygame.Surface((self.internal_width, self.internal_height), pygame.SRCALPHA)
         darkness_surface.fill((0, 0, 0, 255))  # Full opacity
 
+        # Draw a small viewable circle around the player
         pygame.draw.circle(darkness_surface, (0, 0, 0, 0), (player.x + player.width // 2, player.y + player.height // 2), 30)
         self.internal_surface.blit(darkness_surface, (0, 0))
 
     def apply_light_effect(self, player):
+        # Apply dark, but visible effect in the cave with torch
         light_surface = pygame.Surface((self.internal_width, self.internal_height), pygame.SRCALPHA)
-        light_surface.fill((0, 0, 0, 200))  # Adjust the alpha to make it almost pitch black
+        light_surface.fill((0, 0, 0, 200))  # Alpha makes the surface translucent
 
+        # Draw a larger viewable circle around the player
         pygame.draw.circle(light_surface, (0, 0, 0, 0), (player.x + player.width // 2, player.y + player.height // 2), 300)
         self.internal_surface.blit(light_surface, (0, 0))
     
     def add_dialog_box(self, message, duration=5):
+        # Add a dialog box with a message and duration
         if not hasattr(self, 'dialog_messages'):
             self.dialog_messages = []
         current_time = time.time()

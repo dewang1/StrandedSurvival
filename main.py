@@ -127,24 +127,33 @@ def play_game(screen, player):
             elif event.type == pygame.VIDEORESIZE:
                 screen.handle_resize(event)
             elif event.type == pygame.KEYDOWN:
+                # Handle inventory opening and closing
                 if event.key == pygame.K_e:
                     inventory_open = not inventory_open
                     if inventory_open and not player.inventory_opened:
                         screen.add_dialog_box("Left click items in inventory to remove.", 7)
                         player.inventory_opened = True
-                elif event.key == pygame.K_c:
+                # Hacks to get items quickly for testing
+                """elif event.key == pygame.K_c:
                     item = random.choice(items)
                     quantity = random.randint(1, 5)
-                    player.add_item(item, quantity)
+                    player.add_item(item, quantity)"""
+                # Handle resource collection
                 if event.key == pygame.K_f:
                     handle_resource_collection(screen, player, player_rect, current_time_ticks)
-
+            # Handle clickling in inventory
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
                 if inventory_open:
                     for index, rect in enumerate(screen.inventory_positions):
                         if rect.collidepoint(mouse_pos):
-                            player.clear_inventory_slot(index)
+                            # If left click, clear inventory
+                            if event.button == 1:
+                                player.clear_inventory_slot(index)
+                            # If right click, consume item
+                            elif event.button == 3:
+                                player.consume_item(index)
+                # Handle crafting dialog clicks
                 for rect, text in screen.dialog_boxes:
                     if rect.collidepoint(mouse_pos):
                         screen.handle_crafting_click(player, text)
@@ -183,6 +192,7 @@ def play_game(screen, player):
                     current_background = "JUNGLE"
                     player.x = screen.internal_width - player.width - 1
                 elif player.x >= screen.internal_width - player.width and keys[pygame.K_RIGHT]:
+                    # Check if player has materials to build a raft
                     if ((player.check_item_quantity("fish", 15) and 
                         player.check_item_quantity("salt", 15) and 
                         player.check_item_quantity("vine", 10) and 
@@ -190,11 +200,12 @@ def play_game(screen, player):
                         player.check_item_quantity("leaf", 10))):
                         screen.set_background("OCEAN")
                         current_background = "OCEAN"
+                        # Make player into a raft and slow the speed
                         player = Raft(1, player.y, player.max_health, player.health, player.max_hunger, player.hunger, player.max_temperature, player.temperature)  # Change player to raft
                         speed = 3
                         screen.entrance_dialog_added = False
                         screen.add_dialog_box("Escape by going right! Avoid the waves!", 7)
-                        screen.waves = [OceanWaves(screen.internal_width, screen.internal_height) for _ in range(4)]  # Spawn waves when entering the ocean
+                        screen.waves = [OceanWaves(screen.internal_width, screen.internal_height) for _ in range(5)]  # Spawn waves when entering the ocean
                     elif not screen.entrance_dialog_added:
                         screen.add_dialog_box("You need resources for raft and food (15 fish, 15 salt, 10 vine, 10 wood, 10 leaf).", 7)
                         screen.entrance_dialog_added = True
@@ -217,18 +228,18 @@ def play_game(screen, player):
                     player.x = 1
 
             elif current_background == "MOUNTAIN":
-                # Check for collision with Entrance object layer
+                # Check for collision with entrance
                 entrance_collided = False
                 for collidable in screen.collidable_objects:
                     if collidable.rect.colliderect(player_rect) and 'Entrance' in collidable.layer:
                         entrance_collided = True
                         break
-
                 if player.y >= screen.internal_height - player.height and keys[pygame.K_DOWN]:
                     screen.set_background("JUNGLE")
                     current_background = "JUNGLE"
                     player.y = 1
                 elif entrance_collided:
+                    # Implement locked entrance with pulley as key
                     if player.has_item_in_inventory("pulley"):
                         screen.set_background("CAVE")
                         current_background = "CAVE"
@@ -244,6 +255,7 @@ def play_game(screen, player):
                         screen.entrance_dialog_added = False
 
             elif current_background == "CAVE":
+                # Exit hole
                 entrance_collided = False
                 player_rect = player.get_hitbox()
                 for collidable in screen.collidable_objects:
@@ -290,14 +302,16 @@ def play_game(screen, player):
 
         # Adjust temperature based on the current background
         if current_background == "MOUNTAIN":
+            # Decrease temperature in the mountain
             if current_time - last_temperature_change_time >= 2:
                 player.decrease_temperature()
                 last_temperature_change_time = current_time
-
+            # Decrease player's health if temperature reaches zero
             if player.temperature <= 0 and current_time - player.last_health_decrease_time >= 1:
                 player.decrease_health()
                 player.last_health_decrease_time = current_time
         else:
+            # Increase temperature in other backgrounds
             if current_time - last_temperature_change_time >= 5:
                 player.increase_temperature()
                 last_temperature_change_time = current_time
@@ -337,7 +351,7 @@ def handle_collisions(player, collidables):
             if player_rect.colliderect(collidable):
                 # Calculate diagonal speed for diagonal movements
                 diagonal_speed = speed / 1.41421356
-                # Adjust player's position based on the direction of movement
+                # Prevent player from moving into the collidable object
                 if player.movement == 'up':
                     player.y += speed
                 elif player.movement == 'down':
@@ -362,5 +376,5 @@ def handle_collisions(player, collidables):
 if __name__ == "__main__":
     pygame.init()
     screen = Screen()  # Default starts with BEACH background
-    player = HumanPlayer(screen.internal_width / 2, screen.internal_height - 100, 20, 20, 20, 20, 20, 20)
+    player = HumanPlayer(screen.internal_width / 2, screen.internal_height - 100, 20, 20, 20, 2, 20, 20)
     play_game(screen, player)
