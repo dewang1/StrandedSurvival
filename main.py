@@ -141,12 +141,15 @@ def play_game(screen, player):
                 # Handle resource collection
                 if event.key == pygame.K_f:
                     handle_resource_collection(screen, player, player_rect, current_time_ticks)
-            # Handle clickling in inventory
+            # Handle clickling in inventory and crafting
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_pos = pygame.mouse.get_pos()
+                # Adjust mouse position according to the scaling and offset
+                adjusted_mouse_pos = ((mouse_pos[0] - screen.offset_x) / screen.scale_factor, 
+                                    (mouse_pos[1] - screen.offset_y) / screen.scale_factor)
                 if inventory_open:
                     for index, rect in enumerate(screen.inventory_positions):
-                        if rect.collidepoint(mouse_pos):
+                        if rect.collidepoint(adjusted_mouse_pos):
                             # If left click, clear inventory
                             if event.button == 1:
                                 player.clear_inventory_slot(index)
@@ -155,8 +158,9 @@ def play_game(screen, player):
                                 player.consume_item(index)
                 # Handle crafting dialog clicks
                 for rect, text in screen.dialog_boxes:
-                    if rect.collidepoint(mouse_pos):
+                    if rect.collidepoint(adjusted_mouse_pos):
                         screen.handle_crafting_click(player, text)
+
 
         # Handle player movement based on key presses
         keys = pygame.key.get_pressed()

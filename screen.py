@@ -388,8 +388,7 @@ class Screen:
             self.dialog_boxes = []
         self.dialog_boxes.append((pygame.Rect(box_x, box_y, box_width, box_height), text))
 
-    def update_screen(self, player, inventory_open, cooldown_ratio=1, crafting_prompts=[]): # It updates the screen by drawing all of the elements which includes the background, player, collision objects, UI, and aspect ratio adjustments. 
-
+    def update_screen(self, player, inventory_open, cooldown_ratio=1, crafting_prompts=[]):
         self.refresh_background()
 
         # Calculate the scaling factors
@@ -455,12 +454,10 @@ class Screen:
         for i, (message, _, _) in enumerate(self.dialog_messages):
             self.draw_dialog_box(message, i + len(crafting_prompts))
 
-
-        # Calculate the scaling factors
+        # Calculate the scaling factors and offsets
         scale_x = self.window_width / self.internal_width
         scale_y = self.window_height / self.internal_height
 
-        # Maintain the aspect ratio
         if scale_x < scale_y:
             scale_factor = scale_x
             scaled_width = self.window_width
@@ -474,12 +471,18 @@ class Screen:
             offset_x = (self.window_width - scaled_width) // 2
             offset_y = 0
 
+        # Store scaling factors and offsets
+        self.scale_factor = scale_factor
+        self.offset_x = offset_x
+        self.offset_y = offset_y
+
         # Scale the internal surface to fit the window
         scaled_surface = pygame.transform.scale(self.internal_surface, (scaled_width, scaled_height))
         self.screen.fill((0, 0, 0))  # Fill with black
         self.screen.blit(scaled_surface, (offset_x, offset_y))
         self.clock.tick(self.clock_tick)
         pygame.display.update()
+
 
 
 
